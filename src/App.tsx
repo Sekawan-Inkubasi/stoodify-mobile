@@ -221,7 +221,7 @@ export function App() {
   };
 
   return (
-    <div className="relative font-sans antialiased min-h-dvh bg-[#EAF1FC]">
+    <div className="relative font-sans antialiased h-dvh max-h-dvh overflow-hidden bg-[#EAF1FC]">
       <MobileContainer
         activeTab={activeTab}
         onTabChange={setActiveTab}

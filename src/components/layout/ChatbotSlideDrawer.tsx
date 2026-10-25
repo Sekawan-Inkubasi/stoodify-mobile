@@ -75,6 +75,17 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
     }
   }, [isOpen, messages, isThinking]);
 
+  // Lock background scroll when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isOpen]);
+
   // Handle escape key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
