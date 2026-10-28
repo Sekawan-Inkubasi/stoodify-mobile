@@ -34,8 +34,8 @@ import {
 import { Task, AISession, StudyPreferences, Subject, ScheduleItem } from './types';
 
 export function App() {
-  // Authentication status (defaults to true for instant evaluation)
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  // Authentication status: defaults to false so initial visitors see the Welcome & Login flow
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Active navigation tab
   const [activeTab, setActiveTab] = useState('home');
