@@ -1,48 +1,60 @@
 import React, { useState } from 'react';
 import { 
+  ArrowLeft, 
   Eye, 
-  Headphones, 
-  Calendar, 
-  Clock, 
-  ArrowRight, 
-  ChevronLeft, 
-  Mail, 
-  Lock, 
-  User, 
-  Sparkles,
-  Trophy,
-  Check
+  EyeOff, 
+  Check, 
+  ChevronDown, 
+  Sparkles, 
+  Info 
 } from 'lucide-react';
+import stoodifyLogo from '../../assets/logo_stoodify.png';
 
 interface AuthViewProps {
   onLoginSuccess: (name: string, email: string) => void;
 }
 
+// Crisp Google Icon
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+    <path
+      fill="#4285F4"
+      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"
+    />
+  </svg>
+);
+
 export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
-  const [mode, setMode] = useState<'onboarding' | 'login' | 'register'>('onboarding');
+  // Mode: 'welcome' (Splash/Hero - First Screen opened), 'login' (Sign In), 'register' (Create Account)
+  const [mode, setMode] = useState<'welcome' | 'login' | 'register'>('welcome');
   
-  // Onboarding habit controls (From Reference 1 Screen 1)
-  const [studyMinutes, setStudyMinutes] = useState(30);
-  const [selectedStyle, setSelectedStyle] = useState<'visual' | 'listen' | 'practical' | 'routine'>('visual');
+  // Password visibility toggles
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(true);
 
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('naufal.pratama@student.id');
-  const [loginPassword, setLoginPassword] = useState('password123');
+  const [loginEmail, setLoginEmail] = useState('nathan.roberts@example.com');
+  const [loginPassword, setLoginPassword] = useState('axkLC8wyoA4M');
 
   // Register form state
-  const [regName, setRegName] = useState('');
-  const [regSchool, setRegSchool] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-
-  // Waveform bars simulation
-  const waveformBars = [
-    12, 18, 14, 24, 30, 22, 16, 28, 36, 42, 38, 32, 28, 34, 40, 48, 44, 36, 30, 25, 20, 16, 22, 28, 32, 24, 18, 14, 10
-  ];
-
-  const handleFinishOnboarding = () => {
-    onLoginSuccess('Naufal Pratama', 'naufal.pratama@student.id');
-  };
+  const [regName, setRegName] = useState('Vincze Nikolett');
+  const [regEmail, setRegEmail] = useState('nathan.roberts@example.com');
+  const [regRole, setRegRole] = useState('Siswa SMA / SMK (Fase F)');
+  const [regPassword, setRegPassword] = useState('ZB0mLzLH7CU');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('••••••••••••');
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,245 +66,73 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
     onLoginSuccess(regName || 'Siswa Baru', regEmail || 'siswa@stoodify.id');
   };
 
+  const handleQuickDemoLogin = () => {
+    onLoginSuccess('Naufal Pratama', 'naufal.pratama@student.id');
+  };
+
   return (
-    <div className="min-h-full flex flex-col justify-between p-4 pt-1 pb-6">
+    <div className="w-full h-full min-h-full flex-1 flex flex-col bg-white">
       
       {/* ========================================================= */}
-      {/* 1. ONBOARDING SCREEN (Exact replica of Reference 1 Screen 1) */}
+      {/* 1. WELCOME / HERO SCREEN (Layar Pertama Kali Dibuka)       */}
       {/* ========================================================= */}
-      {mode === 'onboarding' && (
-        <div className="space-y-4">
+      {mode === 'welcome' && (
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between">
           
-          {/* Top 3D Mascot & "Learning" Title Header */}
-          <div className="relative pt-2 pb-1 text-center flex flex-col items-center">
-            {/* Playful Floating Emojis / Badges */}
-            <div className="flex items-center gap-1.5 mb-1 bg-white/70 backdrop-blur-md px-3 py-1 rounded-full border border-white shadow-xs">
-              <span className="text-base">🤗</span>
-              <span className="text-[11px] font-semibold text-blue-900 tracking-wide uppercase">Smart Learning</span>
-            </div>
-
-            {/* Mascot & Graphic Composition */}
-            <div className="relative my-1 w-full max-w-[280px] h-36 flex items-center justify-center">
-              {/* Central Mascot Badge */}
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-amber-300 p-1 shadow-xl shadow-blue-500/20">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" 
-                    alt="Student Mascot"
-                    className="w-full h-full object-cover" 
-                  />
-                </div>
-              </div>
-
-              {/* Floating Trophy Badge */}
-              <div className="absolute -left-2 top-8 w-11 h-11 bg-amber-400 rounded-2xl flex items-center justify-center shadow-md shadow-amber-400/30 text-white animate-bounce duration-1000">
-                <Trophy className="w-6 h-6 fill-white" />
-              </div>
-
-              {/* Floating Lightbulb badge */}
-              <div className="absolute -right-1 top-4 w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-md shadow-indigo-500/30 text-white">
-                <Sparkles className="w-5 h-5 fill-white" />
-              </div>
-
-              {/* Floating Books Pill */}
-              <div className="absolute bottom-0 right-4 bg-white px-2.5 py-1 rounded-xl shadow-md border border-slate-100 flex items-center gap-1 text-[11px] font-bold text-slate-800">
-                <span>📚 12 Sesi</span>
-              </div>
-            </div>
-
-            {/* Big "Learning" Title */}
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-              Learning
-            </h1>
-            <p className="text-xs text-slate-500 font-normal max-w-xs mt-0.5">
-              Sesuaikan target dan gaya belajarmu sebelum AI mengatur jadwal pekan ini.
-            </p>
-          </div>
-
-          {/* White Card: "Set your daily study time" (Reference 1 Screen 1) */}
-          <div className="bg-white rounded-[26px] p-4 shadow-[0_8px_30px_rgba(20,40,90,0.06)] border border-white space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-900">
-                Set your daily study time
-              </span>
-              <span className="text-xs font-bold text-[#0062FF] bg-blue-50 px-2 py-0.5 rounded-full">
-                {studyMinutes} Min / hari
-              </span>
-            </div>
-
-            {/* Waveform graphic */}
-            <div className="h-10 flex items-end justify-between gap-[2px] px-2 pt-2">
-              {waveformBars.map((height, idx) => {
-                const percentPosition = (idx / (waveformBars.length - 1)) * 100;
-                const activePercent = ((studyMinutes - 10) / 50) * 100;
-                const isPassed = percentPosition <= activePercent;
-
-                return (
-                  <div
-                    key={idx}
-                    className={`flex-1 rounded-full transition-all duration-200 ${
-                      isPassed ? 'bg-[#0062FF]' : 'bg-slate-200'
-                    }`}
-                    style={{ height: `${height}%` }}
-                  />
-                );
-              })}
-            </div>
-
-            {/* Slider Scrubber with Pill Bubble */}
-            <div className="relative pt-1">
-              <input
-                type="range"
-                min="10"
-                max="60"
-                step="5"
-                value={studyMinutes}
-                onChange={(e) => setStudyMinutes(Number(e.target.value))}
-                className="w-full accent-[#0062FF] cursor-pointer h-2 bg-slate-100 rounded-lg"
-              />
-              <div className="flex justify-between text-[11px] font-bold text-slate-400 mt-1">
-                <span>10 Min</span>
-                <span>60 Min</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Soft Pastel Learning Style Cards (Reference 1 Screen 1) */}
-          <div className="grid grid-cols-2 gap-2.5">
+          {/* Top Blue Atmosphere Section (Responsive Full Bleed) */}
+          <div className="relative w-full h-[52vh] min-h-[290px] max-h-[460px] bg-gradient-to-b from-[#1040E0] via-[#1B52F2] to-[#3B82F6] flex flex-col items-center justify-center overflow-hidden px-6">
             
-            {/* 1. Visual Thinker */}
-            <div
-              onClick={() => setSelectedStyle('visual')}
-              className={`rounded-2xl p-3 border transition-all cursor-pointer relative flex flex-col justify-between min-h-[92px] ${
-                selectedStyle === 'visual'
-                  ? 'bg-[#E8F2FE] border-[#B9D7FB] shadow-xs'
-                  : 'bg-[#F2F7FE]/70 border-transparent hover:bg-[#E8F2FE]/70'
-              }`}
-            >
-              <div>
-                <h4 className="text-xs font-semibold text-[#1E3A8A]">Visual Thinker</h4>
-                <p className="text-[10px] text-[#3B82F6] font-normal leading-tight mt-0.5">
-                  Remembers ideas using visuals
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="w-6 h-6 rounded-lg bg-blue-500/20 text-[#1E3A8A] flex items-center justify-center">
-                  <Eye className="w-3.5 h-3.5 stroke-[2.2px]" />
-                </div>
-                {selectedStyle === 'visual' && (
-                  <div className="w-4 h-4 rounded-full bg-[#0062FF] text-white flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 stroke-[3px]" />
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Luminous Glow Halo */}
+            <div className="absolute w-80 h-80 rounded-full bg-blue-300/30 blur-3xl pointer-events-none" />
+            
+            {/* Soft Gradient Fade to White at Bottom */}
+            <div className="absolute -bottom-1 left-0 right-0 h-28 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
 
-            {/* 2. Listen & Learn */}
-            <div
-              onClick={() => setSelectedStyle('listen')}
-              className={`rounded-2xl p-3 border transition-all cursor-pointer relative flex flex-col justify-between min-h-[92px] ${
-                selectedStyle === 'listen'
-                  ? 'bg-[#FEF4E6] border-[#FCD9AC] shadow-xs'
-                  : 'bg-[#FFF8EF]/70 border-transparent hover:bg-[#FEF4E6]/70'
-              }`}
-            >
-              <div>
-                <h4 className="text-xs font-semibold text-[#78350F]">Listen & Learn</h4>
-                <p className="text-[10px] text-[#D97706] font-normal leading-tight mt-0.5">
-                  Processes ideas by listening
-                </p>
+            {/* Centered Stoodify Icon & Brand */}
+            <div className="relative z-10 flex flex-col items-center text-center space-y-3.5 -mt-4">
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md p-4 border border-white/40 shadow-2xl flex items-center justify-center">
+                <img 
+                  src={stoodifyLogo} 
+                  alt="Stoodify Logo" 
+                  className="w-full h-full object-contain filter brightness-0 invert drop-shadow-md" 
+                />
               </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-[#78350F] flex items-center justify-center">
-                  <Headphones className="w-3.5 h-3.5 stroke-[2.2px]" />
-                </div>
-                {selectedStyle === 'listen' && (
-                  <div className="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 stroke-[3px]" />
-                  </div>
-                )}
-              </div>
+              <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+                Stoodify
+              </h1>
             </div>
-
-            {/* 3. Practical Learner */}
-            <div
-              onClick={() => setSelectedStyle('practical')}
-              className={`rounded-2xl p-3 border transition-all cursor-pointer relative flex flex-col justify-between min-h-[92px] ${
-                selectedStyle === 'practical'
-                  ? 'bg-[#FEECEB] border-[#FCC4C0] shadow-xs'
-                  : 'bg-[#FFF3F3]/70 border-transparent hover:bg-[#FEECEB]/70'
-              }`}
-            >
-              <div>
-                <h4 className="text-xs font-semibold text-[#881337]">Practical Learner</h4>
-                <p className="text-[10px] text-[#E11D48] font-normal leading-tight mt-0.5">
-                  Applies knowledge while learning
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="w-6 h-6 rounded-lg bg-rose-500/20 text-[#881337] flex items-center justify-center">
-                  <Calendar className="w-3.5 h-3.5 stroke-[2.2px]" />
-                </div>
-                {selectedStyle === 'practical' && (
-                  <div className="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 stroke-[3px]" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* 4. Routine Learner */}
-            <div
-              onClick={() => setSelectedStyle('routine')}
-              className={`rounded-2xl p-3 border transition-all cursor-pointer relative flex flex-col justify-between min-h-[92px] ${
-                selectedStyle === 'routine'
-                  ? 'bg-[#F1EEFD] border-[#D4CBFB] shadow-xs'
-                  : 'bg-[#F8F6FE]/70 border-transparent hover:bg-[#F1EEFD]/70'
-              }`}
-            >
-              <div>
-                <h4 className="text-xs font-semibold text-[#4C1D95]">Routine Learner</h4>
-                <p className="text-[10px] text-[#7C3AED] font-normal leading-tight mt-0.5">
-                  Progresses through planned routines
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="w-6 h-6 rounded-lg bg-purple-500/20 text-[#4C1D95] flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 stroke-[2.2px]" />
-                </div>
-                {selectedStyle === 'routine' && (
-                  <div className="w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 stroke-[3px]" />
-                  </div>
-                )}
-              </div>
-            </div>
-
           </div>
 
-          {/* Solid Electric Blue Pill Button: "Next" */}
-          <div className="pt-2 space-y-2">
-            <button
-              onClick={handleFinishOnboarding}
-              className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-sm py-3.5 rounded-full shadow-lg shadow-blue-500/30 transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <span>Next</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.2px]" />
-            </button>
+          {/* Bottom Content Area */}
+          <div className="w-full flex-1 bg-white px-7 pt-4 pb-8 flex flex-col justify-between max-w-[420px] mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 font-normal text-center max-w-[280px] mx-auto leading-relaxed">
+              Your AI Assistant for Task Management and Study Schedule.
+            </p>
 
-            <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-500 pt-1">
-              <button 
-                onClick={() => setMode('login')} 
-                className="hover:text-[#0062FF] cursor-pointer"
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-6 w-full">
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className="w-full py-3.5 px-6 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-lg shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
               >
-                Sudah Ada Akun? Masuk
+                Sign In
               </button>
-              <span>&bull;</span>
-              <button 
-                onClick={() => setMode('register')} 
-                className="hover:text-[#0062FF] cursor-pointer"
+
+              <button
+                type="button"
+                onClick={() => setMode('register')}
+                className="w-full py-3.5 px-6 rounded-full text-[#1E50FF] font-semibold text-xs sm:text-sm tracking-wide bg-white border border-[#1E50FF] hover:bg-blue-50/50 active:scale-98 transition-all cursor-pointer text-center"
               >
-                Daftar Akun
+                Create Account
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQuickDemoLogin}
+                className="w-full text-center text-[11px] font-semibold text-slate-400 hover:text-blue-600 transition-colors pt-1 cursor-pointer block"
+              >
+                Masuk Mode Demo (Naufal Pratama)
               </button>
             </div>
           </div>
@@ -301,167 +141,328 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
       )}
 
       {/* ========================================================= */}
-      {/* 2. LOGIN SCREEN (Clean Modern Aesthetic)                  */}
+      {/* 2. SIGN IN SCREEN (Layar Detail Login)                    */}
       {/* ========================================================= */}
       {mode === 'login' && (
-        <div className="space-y-4 pt-4">
-          <button
-            onClick={() => setMode('onboarding')}
-            className="w-10 h-10 rounded-full bg-white text-slate-700 shadow-sm border border-slate-100 flex items-center justify-center hover:bg-slate-50 cursor-pointer"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Masuk ke Stoodify</h2>
-            <p className="text-xs text-slate-500 mt-1 font-normal">Lanjutkan jadwal belajar cerdas yang telah tersusun.</p>
-          </div>
+            {/* Top Row: Back button + Circular Stoodify Logo + Version */}
+            <div className="flex items-center justify-between mb-7">
+              <div className="flex items-center gap-2.5">
+                <button 
+                  type="button" 
+                  onClick={() => setMode('welcome')} 
+                  className="p-1 -ml-1 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
+                  aria-label="Kembali ke halaman awal"
+                  title="Kembali ke halaman awal"
+                >
+                  <ArrowLeft className="w-5 h-5 stroke-[2.2px]" />
+                </button>
+                <div 
+                  onClick={() => setMode('welcome')}
+                  className="w-12 h-12 rounded-full bg-[#EEF4FF] border border-blue-100 flex items-center justify-center p-2.5 shadow-xs cursor-pointer hover:bg-blue-100/60 transition-all active:scale-95"
+                  title="Kembali ke halaman awal"
+                >
+                  <img 
+                    src={stoodifyLogo} 
+                    alt="Stoodify Logo" 
+                    className="w-full h-full object-contain" 
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] font-mono text-slate-400 tracking-tight">
+                1.0.0 Stoodify
+              </span>
+            </div>
 
-          <form onSubmit={handleLoginSubmit} className="space-y-3.5 pt-2">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Siswa</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            {/* Sign In Form */}
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              {/* Field: Email / Username */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Email / Username
+                </label>
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="naufal@student.id"
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0062FF]/20 focus:border-[#0062FF]"
+                  placeholder="nathan.roberts@example.com"
+                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="password"
-                  required
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs text-slate-900 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#0062FF]/20 focus:border-[#0062FF]"
-                />
+              {/* Field: Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                    aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-3">
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
+                >
+                  Sign In
+                </button>
+              </div>
+
+              {/* Forgot Password */}
+              <div className="text-center pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => alert('Link pemulihan kata sandi telah dikirim ke email terdaftar.')}
+                  className="text-xs font-semibold text-slate-600 hover:text-[#1E50FF] transition-colors cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
+              {/* Divider "Or" */}
+              <div className="flex items-center gap-3 pt-1" aria-hidden="true">
+                <div className="h-px flex-1 bg-slate-200/80" />
+                <span className="text-[11px] text-slate-400 font-medium">Or</span>
+                <div className="h-px flex-1 bg-slate-200/80" />
+              </div>
+
+              {/* Social & Demo Buttons */}
+              <div className="space-y-2.5">
+                {/* Continue with Google */}
+                <button
+                  type="button"
+                  onClick={handleQuickDemoLogin}
+                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-slate-700 font-semibold text-xs py-3 px-4 rounded-2xl border border-slate-200/60 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                >
+                  <GoogleIcon />
+                  <span>Continue with Google</span>
+                </button>
+
+                {/* 1-Click Demo Login */}
+                <button
+                  type="button"
+                  onClick={handleQuickDemoLogin}
+                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-[#1E50FF] font-semibold text-xs py-3 px-4 rounded-2xl border border-blue-200/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 fill-[#1E50FF]" />
+                  <span>Masuk Mode Demo (Naufal Pratama)</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Bottom Section */}
+          <div className="pt-6 text-center space-y-2">
+            <p className="text-xs text-slate-500 font-medium">
+              Don't have an account?{' '}
               <button
-                type="submit"
-                className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-sm py-3.5 rounded-full shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
+                type="button"
+                onClick={() => setMode('register')}
+                className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
-                Masuk Sekarang
+                Sign up
               </button>
-            </div>
-          </form>
+            </p>
 
-          <div className="text-center pt-3 text-xs text-slate-500">
-            Belum punya akun?{' '}
-            <button
-              onClick={() => setMode('register')}
-              className="font-semibold text-[#0062FF] hover:underline cursor-pointer"
-            >
-              Daftar di sini
-            </button>
+            <p className="text-[10px] text-slate-400 font-mono">
+              &copy; 2026 Stoodify.Inc
+            </p>
           </div>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* 3. REGISTER SCREEN (Clean Modern Aesthetic)               */}
+      {/* 3. CREATE ACCOUNT SCREEN (Layar Register)                 */}
       {/* ========================================================= */}
       {mode === 'register' && (
-        <div className="space-y-3 pt-3">
-          <button
-            onClick={() => setMode('onboarding')}
-            className="w-10 h-10 rounded-full bg-white text-slate-700 shadow-sm border border-slate-100 flex items-center justify-center hover:bg-slate-50 cursor-pointer"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Daftar Akun Siswa</h2>
-            <p className="text-xs text-slate-500 mt-0.5 font-normal">Gabung ribuan siswa yang belajar teratur tanpa burnout.</p>
-          </div>
+            {/* Header: Back Button + Title */}
+            <div className="flex items-center gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className="p-1 -ml-1 text-slate-700 hover:text-[#1E50FF] cursor-pointer transition-colors"
+                aria-label="Kembali ke Sign In"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.2px]" />
+              </button>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                Create Account
+              </h2>
+            </div>
 
-          <form onSubmit={handleRegisterSubmit} className="space-y-3 pt-1">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap</label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            {/* Register Form */}
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+              {/* Full Name */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   required
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  placeholder="Contoh: Naufal Pratama"
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-[#0062FF]"
+                  placeholder="Vincze Nikolett"
+                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Sekolah</label>
-              <input
-                type="text"
-                value={regSchool}
-                onChange={(e) => setRegSchool(e.target.value)}
-                placeholder="SMAN 1 Bandung"
-                className="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-[#0062FF]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Siswa</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              {/* School / Work Email */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  School / Work Email
+                </label>
                 <input
                   type="email"
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="nama@student.id"
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-[#0062FF]"
+                  placeholder="nathan.roberts@example.com"
+                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
+                <p className="text-[10px] text-amber-700/90 font-medium flex items-center gap-1 mt-1">
+                  <Info className="w-3 h-3 shrink-0" />
+                  <span>Please use your school or student email address</span>
+                </p>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="password"
-                  required
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  placeholder="Minimal 8 karakter"
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-[#0062FF]"
-                />
+              {/* Role / Grade Select */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Role / Tingkat
+                </label>
+                <div className="relative">
+                  <select
+                    value={regRole}
+                    onChange={(e) => setRegRole(e.target.value)}
+                    className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none appearance-none transition-all cursor-pointer"
+                  >
+                    <option value="Siswa SMA / SMK (Fase F)">Siswa SMA / SMK (Fase F)</option>
+                    <option value="Siswa SMP (Fase D)">Siswa SMP (Fase D)</option>
+                    <option value="Mahasiswa (Undergraduate)">Mahasiswa (Undergraduate)</option>
+                    <option value="Guru / Mentor">Guru / Mentor</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
-            </div>
 
-            <div className="pt-2">
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    placeholder="ZB0mLzLH7CU"
+                    className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                    aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    value={regConfirmPassword}
+                    onChange={(e) => setRegConfirmPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                    aria-label={showConfirmPassword ? 'Sembunyikan password' : 'Lihat password'}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Agreement Checkbox */}
+              <div className="pt-1">
+                <label 
+                  onClick={() => setAgreeTerms(!agreeTerms)}
+                  className="flex items-start gap-2 cursor-pointer select-none group"
+                >
+                  <div 
+                    className={`w-4 h-4 mt-0.5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                      agreeTerms ? 'bg-[#1E50FF] text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {agreeTerms && <Check className="w-2.5 h-2.5 stroke-[3px]" />}
+                  </div>
+                  <span className="text-[11px] text-slate-500 leading-tight">
+                    I agree to the{' '}
+                    <span className="text-slate-700 font-semibold underline">Terms & Conditions</span>
+                    {' '}and{' '}
+                    <span className="text-slate-700 font-semibold underline">Privacy Policy</span>
+                  </span>
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
+                >
+                  Create Account
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Bottom Link */}
+          <div className="pt-6 text-center">
+            <p className="text-xs text-slate-500 font-medium">
+              Already have an account?{' '}
               <button
-                type="submit"
-                className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-sm py-3.5 rounded-full shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
+                type="button"
+                onClick={() => setMode('login')}
+                className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
-                Mulai Belajar Sekarang
+                Sign In
               </button>
-            </div>
-          </form>
-
-          <div className="text-center pt-2 text-xs text-slate-500">
-            Sudah punya akun?{' '}
-            <button
-              onClick={() => setMode('login')}
-              className="font-bold text-[#0062FF] hover:underline cursor-pointer"
-            >
-              Masuk
-            </button>
+            </p>
           </div>
         </div>
       )}

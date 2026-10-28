@@ -17,12 +17,12 @@ export const MobileContainer: React.FC<MobileContainerProps> = ({
   sideDrawer,
 }) => {
   return (
-    <div className="h-dvh max-h-dvh w-full bg-[#EAF1FC] flex justify-center overflow-hidden">
+    <div className={`h-dvh max-h-dvh w-full ${showNav ? 'bg-[#EAF1FC]' : 'bg-white'} flex justify-center overflow-hidden`}>
       {/* Real Mobile App Viewport (Stationary viewport, scroll restricted to main content) */}
-      <div className="w-full max-w-[448px] h-dvh max-h-dvh flex flex-col relative bg-gradient-to-b from-[#EAF1FC] via-[#F2F6FE] to-[#F7FAFF] shadow-sm overflow-hidden select-none">
+      <div className={`w-full max-w-[448px] h-dvh max-h-dvh flex flex-col relative ${showNav ? 'bg-gradient-to-b from-[#EAF1FC] via-[#F2F6FE] to-[#F7FAFF] shadow-sm' : 'bg-white'} overflow-hidden select-none`}>
         
         {/* Scrollable Screen Content Container (ONLY this scrolls) */}
-        <main className={`flex-1 overflow-y-auto no-scrollbar ${showNav ? 'pb-24' : 'pb-6'} pt-safe`}>
+        <main className={`flex-1 overflow-y-auto no-scrollbar flex flex-col ${showNav ? 'pb-24 pt-safe' : 'pb-0'}`}>
           {children}
         </main>
 
