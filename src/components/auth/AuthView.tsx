@@ -77,20 +77,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
       {/* 1. WELCOME / HERO SCREEN (Layar Pertama Kali Dibuka)       */}
       {/* ========================================================= */}
       {mode === 'welcome' && (
-        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between">
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between bg-white select-none">
           
-          {/* Top Blue Atmosphere Section (Responsive Full Bleed) */}
-          <div className="relative w-full h-[52vh] min-h-[290px] max-h-[460px] bg-gradient-to-b from-[#1040E0] via-[#1B52F2] to-[#3B82F6] flex flex-col items-center justify-center overflow-hidden px-6">
-            
-            {/* Luminous Glow Halo */}
-            <div className="absolute w-80 h-80 rounded-full bg-blue-300/30 blur-3xl pointer-events-none" />
-            
-            {/* Soft Gradient Fade to White at Bottom */}
-            <div className="absolute -bottom-1 left-0 right-0 h-28 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+          {/* Top Blue Atmosphere Section (Smooth Organic Gradient) */}
+          <div 
+            className="relative w-full h-[54vh] min-h-[320px] max-h-[460px] flex flex-col items-center justify-center overflow-hidden px-6"
+            style={{
+              background: 'radial-gradient(115% 72% at 50% 10%, #1147e8 0%, #1552eb 42%, #1b5bf0 58%, #2b6bf3 69%, #477ff6 78%, #729ef8 85%, #a4c2fb 91%, #d6e3fd 95.5%, #f2f6fe 98.2%, #ffffff 100%)'
+            }}
+          >
+            {/* Luminous Glow Halo behind logo */}
+            <div className="absolute w-72 h-72 rounded-full bg-blue-300/25 blur-3xl pointer-events-none -mt-4" />
 
             {/* Centered Stoodify Icon & Brand */}
-            <div className="relative z-10 flex flex-col items-center text-center space-y-3.5 -mt-4">
-              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md p-4 border border-white/40 shadow-2xl flex items-center justify-center">
+            <div className="relative z-10 flex flex-col items-center text-center space-y-3.5 -mt-6">
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md p-4 border border-white/40 shadow-xl shadow-blue-900/20 flex items-center justify-center">
                 <img 
                   src={stoodifyLogo} 
                   alt="Stoodify Logo" 
@@ -104,7 +105,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
           </div>
 
           {/* Bottom Content Area */}
-          <div className="w-full flex-1 bg-white px-7 pt-4 pb-8 flex flex-col justify-between max-w-[420px] mx-auto">
+          <div className="w-full flex-1 bg-white px-7 pt-2 pb-8 flex flex-col justify-between max-w-[420px] mx-auto z-10">
             <p className="text-xs sm:text-sm text-slate-500 font-normal text-center max-w-[280px] mx-auto leading-relaxed">
               Your AI Assistant for Task Management and Study Schedule.
             </p>
