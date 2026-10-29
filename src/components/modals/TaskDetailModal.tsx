@@ -7,7 +7,8 @@ import {
   Timer, 
   Trash2,
   CalendarCheck2,
-  Hourglass
+  Hourglass,
+  FileText
 } from 'lucide-react';
 import { Task } from '../../types';
 
@@ -129,6 +130,43 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </div>
             )}
           </div>
+
+          {/* File / Foto Lampiran Tugas (Jika Ada) */}
+          {task.attachment && (
+            <div className="bg-slate-50 p-3.5 rounded-3xl border border-slate-200/80 space-y-2">
+              <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px] uppercase tracking-wider">
+                <FileText className="w-4 h-4 text-[#0062FF]" />
+                <span>File Lampiran Tugas</span>
+              </div>
+
+              {task.attachment.previewUrl ? (
+                <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group">
+                  <img 
+                    src={task.attachment.previewUrl} 
+                    alt="Lampiran Tugas" 
+                    className="w-full max-h-48 object-cover cursor-pointer hover:opacity-95 transition-all"
+                    onClick={() => window.open(task.attachment?.previewUrl, '_blank')}
+                  />
+                  <div className="p-2.5 bg-white border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-800 truncate">{task.attachment.name}</span>
+                    <span className="text-[10px] text-slate-400 font-medium shrink-0">{task.attachment.sizeFormatted}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-white rounded-2xl border border-slate-200/80 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#0062FF] flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-semibold text-slate-800 block truncate">{task.attachment.name}</span>
+                      <span className="text-[10px] text-slate-400 font-medium">{task.attachment.sizeFormatted}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* AI Priority & Reasoning Card */}
           <div className="bg-blue-50/70 border border-blue-200/60 rounded-3xl p-4 space-y-1.5">

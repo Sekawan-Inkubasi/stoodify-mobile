@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
-import { X, Plus, Sparkles, Clock } from 'lucide-react';
-import { Subject, Task } from '../../types';
+import React, { useState, useRef } from 'react';
+import { 
+  X, 
+  Plus, 
+  Sparkles, 
+  Calendar as CalendarIcon, 
+  Clock, 
+  Camera, 
+  UploadCloud, 
+  FileText, 
+  Trash2, 
+  Image as ImageIcon 
+} from 'lucide-react';
+import { Subject, Task, TaskAttachment } from '../../types';
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -19,15 +30,84 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  // Form states
   const [title, setTitle] = useState('');
   const [selectedSubject, setSelectedSubject] = useState(subjects[0]?.name || 'Matematika Tingkat Lanjut');
   const [difficulty, setDifficulty] = useState<'Mudah' | 'Sedang' | 'Sulit'>('Sedang');
-  const [duration, setDuration] = useState(45);
-  const [deadlineDate, setDeadlineDate] = useState('Besok, 23:59 WIB');
   const [taskType, setTaskType] = useState<'Individu' | 'Kelompok' | 'Praktikum' | 'Proyek'>('Individu');
   const [notes, setNotes] = useState('');
 
+  // 1. Calendar Deadline State (Default: Besok pukul 23:59)
+  const tomorrow = new Date(Date.now() + 86400000);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const [deadlineDate, setDeadlineDate] = useState(tomorrowStr);
+  const [deadlineTime, setDeadlineTime] = useState('23:59');
+
+  // 2. File / Foto Tugas (Opsional, Max 15MB)
+  const [attachment, setAttachment] = useState<TaskAttachment | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
   const currentSubjectObj = subjects.find(s => s.name === selectedSubject);
+
+  // Quick deadline chips
+  const setQuickDeadline = (daysAhead: number) => {
+    const targetDate = new Date(Date.now() + daysAhead * 86400000);
+    setDeadlineDate(targetDate.toISOString().split('T')[0]);
+  };
+
+  // Helper format Indonesian date
+  const formatIndonesianDate = (dateStr: string, timeStr: string) => {
+    try {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const d = new Date(year, month - 1, day);
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} • ${timeStr} WIB`;
+    } catch {
+      return `${dateStr} ${timeStr}`;
+    }
+  };
+
+  // Helper file size formatter
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // File handler with 15MB max limit
+  const handleFileSelected = (file?: File) => {
+    if (!file) return;
+
+    const maxSizeBytes = 15 * 1024 * 1024; // 15 MB
+    if (file.size > maxSizeBytes) {
+      alert(`Ukuran file "${file.name}" (${formatFileSize(file.size)}) melebihi batas maksimal 15 MB! Silakan pilih file yang lebih kecil.`);
+      return;
+    }
+
+    const isImg = file.type.startsWith('image/');
+    const isDoc = file.type.includes('pdf') || file.type.includes('word') || file.name.endsWith('.pdf') || file.name.endsWith('.docx') || file.name.endsWith('.doc');
+
+    const previewUrl = isImg ? URL.createObjectURL(file) : undefined;
+
+    setAttachment({
+      name: file.name,
+      sizeFormatted: formatFileSize(file.size),
+      type: isImg ? 'image' : isDoc ? 'document' : 'other',
+      previewUrl,
+    });
+  };
+
+  // Calculate estimated duration automatically by AI based on difficulty and task type
+  const calculateEstimatedMinutes = (diff: 'Mudah' | 'Sedang' | 'Sulit', type: string): number => {
+    let base = diff === 'Sulit' ? 60 : diff === 'Sedang' ? 45 : 30;
+    if (type === 'Proyek' || type === 'Praktikum') base += 15;
+    return base;
+  };
+
+  const estimatedDuration = calculateEstimatedMinutes(difficulty, taskType);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,21 +126,25 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
       priorityScore = 55;
     }
 
+    const formattedDeadline = formatIndonesianDate(deadlineDate, deadlineTime);
+    const deadlineIso = new Date(`${deadlineDate}T${deadlineTime}:00`).toISOString();
+
     onAddTask({
       title: title.trim(),
       subject: selectedSubject,
       subjectColor: currentSubjectObj?.color || '#0062FF',
-      deadline: new Date(Date.now() + 86400000).toISOString(),
-      deadlineFormatted: deadlineDate,
+      deadline: deadlineIso,
+      deadlineFormatted: formattedDeadline,
       difficulty,
-      estimatedDurationMinutes: duration,
+      estimatedDurationMinutes: estimatedDuration,
       priorityLevel,
       priorityScore,
       status: 'not_started',
       taskType,
-      scheduledSlot: '19:30 - 20:15 WIB',
-      aiReasoning: `Prioritas ${priorityLevel} dihitung otomatis dari tingkat kesulitan ${difficulty.toLowerCase()} dan durasi ${duration} menit. AI telah menyiapkan slot waktu belajar.`,
+      scheduledSlot: '19:30 - 20:30 WIB',
+      aiReasoning: `Prioritas ${priorityLevel} & estimasi alokasi waktu ${estimatedDuration} menit dihitung otomatis oleh AI dari tingkat kesulitan ${difficulty.toLowerCase()}.`,
       notes: notes.trim(),
+      attachment: attachment || undefined,
     });
 
     onClose();
@@ -68,10 +152,10 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full max-w-md bg-white rounded-t-[36px] sm:rounded-[36px] max-h-[90vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-6 duration-200">
+      <div className="w-full max-w-md bg-white rounded-t-[36px] sm:rounded-[36px] max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-6 duration-200">
         
         {/* Header */}
-        <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-sm font-bold text-slate-900">Tambah Tugas Baru</h2>
             <p className="text-[11px] font-normal text-slate-500">AI mengatur alokasi jadwal pengerjaan otomatis</p>
@@ -96,7 +180,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Latihan 10 Soal Vektor Dimensi 3"
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0062FF]"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0062FF] focus:bg-white transition-all"
             />
           </div>
 
@@ -121,7 +205,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             <select
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#0062FF]"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#0062FF] focus:bg-white transition-all cursor-pointer"
             >
               {subjects.map(s => (
                 <option key={s.id} value={s.name}>
@@ -131,25 +215,65 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </select>
           </div>
 
-          {/* Batas Waktu / Deadline */}
-          <div>
-            <label className="block font-bold text-slate-700 mb-1">Batas Waktu (Deadline)</label>
-            <div className="grid grid-cols-3 gap-2">
-              {['Hari Ini, 23:59 WIB', 'Besok, 23:59 WIB', 'Lusa, 21:00 WIB'].map((d) => (
+          {/* 1. Batas Waktu / Deadline (Kalender Tanggal & Jam) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                <CalendarIcon className="w-3.5 h-3.5 text-[#0062FF]" />
+                <span>Batas Waktu (Deadline)</span>
+              </label>
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  key={d}
-                  onClick={() => setDeadlineDate(d)}
-                  className={`py-2 px-1 rounded-xl text-[10px] font-semibold transition-all cursor-pointer truncate ${
-                    deadlineDate === d
-                      ? 'bg-blue-50 text-[#0062FF] border border-blue-300'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  onClick={() => setQuickDeadline(0)}
+                  className="text-[10px] font-semibold text-slate-500 hover:text-[#0062FF] bg-slate-100 hover:bg-blue-50 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
                 >
-                  {d.split(',')[0]}
+                  Hari Ini
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setQuickDeadline(1)}
+                  className="text-[10px] font-semibold text-slate-500 hover:text-[#0062FF] bg-slate-100 hover:bg-blue-50 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                >
+                  Besok
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuickDeadline(2)}
+                  className="text-[10px] font-semibold text-slate-500 hover:text-[#0062FF] bg-slate-100 hover:bg-blue-50 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
+                >
+                  Lusa
+                </button>
+              </div>
             </div>
+
+            {/* Input Kalender Tanggal & Jam */}
+            <div className="grid grid-cols-5 gap-2">
+              <div className="col-span-3 relative">
+                <input
+                  type="date"
+                  required
+                  value={deadlineDate}
+                  onChange={(e) => setDeadlineDate(e.target.value)}
+                  className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200/80 focus:border-[#0062FF] rounded-2xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer"
+                />
+              </div>
+
+              <div className="col-span-2 relative">
+                <input
+                  type="time"
+                  required
+                  value={deadlineTime}
+                  onChange={(e) => setDeadlineTime(e.target.value)}
+                  className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200/80 focus:border-[#0062FF] rounded-2xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer text-center"
+                />
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500 font-medium pl-0.5 flex items-center gap-1">
+              <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+              <span>Tenggat: <strong className="text-slate-700">{formatIndonesianDate(deadlineDate, deadlineTime)}</strong></span>
+            </p>
           </div>
 
           {/* Tingkat Kesulitan */}
@@ -161,7 +285,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   type="button"
                   key={diff}
                   onClick={() => setDifficulty(diff)}
-                  className={`py-2 rounded-xl font-extrabold text-[11px] transition-all cursor-pointer ${
+                  className={`py-2 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
                     difficulty === diff
                       ? 'bg-[#0062FF] text-white shadow-sm'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -173,31 +297,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </div>
           </div>
 
-          {/* Estimasi Durasi Waktu */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="font-bold text-slate-700">Estimasi Alokasi Waktu Belajar</label>
-              <span className="font-bold text-[#0062FF]">{duration} Menit</span>
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {[25, 45, 60, 90].map(mins => (
-                <button
-                  type="button"
-                  key={mins}
-                  onClick={() => setDuration(mins)}
-                  className={`py-2 rounded-xl font-medium text-[11px] border transition-all cursor-pointer ${
-                    duration === mins
-                      ? 'bg-blue-50 text-[#0062FF] border-blue-300 font-semibold'
-                      : 'bg-white text-slate-600 border-slate-200'
-                  }`}
-                >
-                  {mins}m
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Jenis Tugas */}
+          {/* Jenis Pengerjaan */}
           <div>
             <label className="block font-bold text-slate-700 mb-1">Jenis Pengerjaan</label>
             <div className="grid grid-cols-4 gap-1.5">
@@ -218,6 +318,90 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </div>
           </div>
 
+          {/* 3. Input File / Foto Tugas (Opsional, Max 15MB) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                <UploadCloud className="w-3.5 h-3.5 text-[#0062FF]" />
+                <span>File / Foto Tugas <span className="font-normal text-slate-400 text-[10px]">(Opsional, Maks 15 MB)</span></span>
+              </label>
+            </div>
+
+            {/* Hidden file inputs */}
+            <input
+              type="file"
+              ref={cameraInputRef}
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => handleFileSelected(e.target.files?.[0])}
+              className="hidden"
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*,.pdf,.doc,.docx,.txt"
+              onChange={(e) => handleFileSelected(e.target.files?.[0])}
+              className="hidden"
+            />
+
+            {/* If attachment already selected */}
+            {attachment ? (
+              <div className="p-3 bg-blue-50/60 border border-blue-200/80 rounded-2xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {attachment.previewUrl ? (
+                    <img 
+                      src={attachment.previewUrl} 
+                      alt="Preview" 
+                      className="w-10 h-10 object-cover rounded-xl border border-blue-200 shrink-0" 
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-white rounded-xl border border-blue-200 flex items-center justify-center shrink-0 text-[#0062FF]">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800 truncate">{attachment.name}</p>
+                    <p className="text-[10px] font-medium text-slate-500">{attachment.sizeFormatted}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setAttachment(null)}
+                  className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors cursor-pointer shrink-0"
+                  title="Hapus Lampiran"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              /* Upload Buttons Grid */
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="py-2.5 px-3 bg-slate-50 hover:bg-blue-50/50 active:scale-98 border border-dashed border-slate-200 hover:border-blue-300 rounded-2xl flex items-center justify-center gap-2 text-slate-600 hover:text-[#0062FF] font-semibold text-xs transition-all cursor-pointer"
+                >
+                  <Camera className="w-4 h-4 text-[#0062FF]" />
+                  <span>Ambil Foto Soal</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="py-2.5 px-3 bg-slate-50 hover:bg-blue-50/50 active:scale-98 border border-dashed border-slate-200 hover:border-blue-300 rounded-2xl flex items-center justify-center gap-2 text-slate-600 hover:text-[#0062FF] font-semibold text-xs transition-all cursor-pointer"
+                >
+                  <ImageIcon className="w-4 h-4 text-[#0062FF]" />
+                  <span>Pilih File / Galeri</span>
+                </button>
+              </div>
+            )}
+            
+            <p className="text-[10px] text-slate-400 font-normal pl-0.5">
+              Lampirkan lembar tugas, buku paket, atau file pendukung agar instruksi tugas jelas.
+            </p>
+          </div>
+
           {/* Catatan Tambahan (Opsional) */}
           <div>
             <label className="block font-semibold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
@@ -226,7 +410,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Contoh: Kumpulkan di meja guru atau via LMS"
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0062FF]"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0062FF] focus:bg-white transition-all"
             />
           </div>
 
@@ -236,7 +420,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             <div className="text-[11px]">
               <span className="font-semibold text-blue-950 block">AI Scheduling Support</span>
               <p className="text-slate-600 mt-0.5 leading-relaxed font-normal">
-                Stoodify akan otomatis membagikan slot waktu belajar untuk tugas ini ke dalam jadwal belajarmu.
+                AI otomatis memperkirakan durasi pengerjaan ({estimatedDuration} menit) dan membagi waktu belajar ke jadwal harianmu.
               </p>
             </div>
           </div>

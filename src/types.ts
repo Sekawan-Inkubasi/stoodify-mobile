@@ -1,6 +1,13 @@
 export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
 export type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'overdue';
 
+export interface TaskAttachment {
+  name: string;
+  sizeFormatted: string;
+  type: 'image' | 'document' | 'other';
+  previewUrl?: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -17,6 +24,7 @@ export interface Task {
   taskType: 'Individu' | 'Kelompok' | 'Praktikum' | 'Proyek' | 'Ulangan' | 'Hafalan';
   notes?: string;
   scheduledSlot?: string;
+  attachment?: TaskAttachment;
 }
 
 export interface AISession {
