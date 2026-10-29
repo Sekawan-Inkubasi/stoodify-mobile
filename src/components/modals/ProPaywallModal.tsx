@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Crown, Check, Shield, ArrowRight } from 'lucide-react';
+import { useDialog } from '../../context/DialogContext';
 
 interface ProPaywallModalProps {
   isOpen: boolean;
@@ -12,12 +13,13 @@ export const ProPaywallModal: React.FC<ProPaywallModalProps> = ({
   onClose,
   onUpgradeSuccess,
 }) => {
+  const { showAlert } = useDialog();
   if (!isOpen) return null;
 
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'semester'>('semester');
 
   const handleUpgrade = () => {
-    alert('Terima kasih! Akunmu telah berhasil di-upgrade ke Stoodify Siswa Pro 🎉');
+    showAlert('Akunmu telah berhasil di-upgrade ke Stoodify Siswa Pro 🎉\nSeluruh batasan kuota AI telah dibuka.', 'Upgrade Berhasil', 'success');
     onUpgradeSuccess();
     onClose();
   };

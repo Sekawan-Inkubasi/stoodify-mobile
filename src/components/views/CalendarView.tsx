@@ -11,6 +11,7 @@ import {
   SlidersHorizontal
 } from 'lucide-react';
 import { ScheduleItem, AISession, Task, Subject } from '../../types';
+import { useDialog } from '../../context/DialogContext';
 
 interface CalendarViewProps {
   schedule: ScheduleItem[];
@@ -33,6 +34,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onDeleteScheduleItem,
   onOpenManageSubjects,
 }) => {
+  const { showConfirm } = useDialog();
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as const;
   const [selectedDay, setSelectedDay] = useState<'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat'>('Senin');
   const [viewMode, setViewMode] = useState<'integrated' | 'timetable'>('integrated');
@@ -180,9 +182,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 {/* Delete button on right */}
                 <button
                   onClick={() => {
-                    if (confirm(`Hapus mata pelajaran "${item.subjectName}" dari jadwal hari ${item.day}?`)) {
-                      onDeleteScheduleItem(item.id);
-                    }
+                    showConfirm({
+                      title: 'Hapus dari Jadwal',
+                      message: `Hapus mata pelajaran "${item.subjectName}" dari jadwal hari ${item.day}?`,
+                      confirmText: 'Hapus Jadwal',
+                      cancelText: 'Batal',
+                      isDestructive: true,
+                      onConfirm: () => {
+                        onDeleteScheduleItem(item.id);
+                      },
+                    });
                   }}
                   className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 transition-opacity p-1.5 rounded-full hover:bg-slate-100 cursor-pointer"
                   title="Hapus dari Jadwal"

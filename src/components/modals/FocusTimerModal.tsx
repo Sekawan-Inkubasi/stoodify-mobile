@@ -10,6 +10,7 @@ import {
   VolumeX
 } from 'lucide-react';
 import { Task } from '../../types';
+import { useDialog } from '../../context/DialogContext';
 
 interface FocusTimerModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
   initialMinutes,
   onSessionComplete,
 }) => {
+  const { showAlert } = useDialog();
   if (!isOpen) return null;
 
   const defaultMinutes = initialMinutes || (task ? task.estimatedDurationMinutes || 45 : 25);
@@ -49,7 +51,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
       }, 1000);
     } else if (secondsRemaining === 0) {
       setIsActive(false);
-      alert('Selamat! Sesi belajar berhasil tuntas! 🎉');
+      showAlert('Selamat! Sesi belajar berhasil tuntas! 🎉', 'Sesi Tuntas', 'success');
       if (onSessionComplete) onSessionComplete(task?.id, Math.round(totalSeconds / 60));
     }
     return () => clearInterval(interval);
@@ -205,7 +207,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
         {/* Complete Session Button */}
         <button
           onClick={() => {
-            alert('Sesi belajar disimpan! Waktu fokusmu bertambah.');
+            showAlert('Sesi belajar disimpan! Waktu fokus belajarmu bertambah.', 'Sesi Tersimpan', 'success');
             if (onSessionComplete) onSessionComplete(task?.id, Math.round(totalSeconds / 60));
             onClose();
           }}

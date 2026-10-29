@@ -11,6 +11,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Subject, Task, ScheduleItem } from '../../types';
+import { useDialog } from '../../context/DialogContext';
 
 interface ManageSubjectsModalProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export const ManageSubjectsModal: React.FC<ManageSubjectsModalProps> = ({
   onUpdateSubject,
   onDeleteSubject,
 }) => {
+  const { showConfirm } = useDialog();
   if (!isOpen) return null;
 
   // View state: 'list' | 'add' | 'edit'
@@ -107,9 +109,14 @@ export const ManageSubjectsModal: React.FC<ManageSubjectsModalProps> = ({
       warning += `\n\nPerhatian: Terdapat ${tasksCount} tugas dan ${scheduleCount} jam jadwal yang terhubung dengan mapel ini.`;
     }
 
-    if (confirm(warning)) {
-      onDeleteSubject(id);
-    }
+    showConfirm({
+      title: 'Hapus Mata Pelajaran',
+      message: warning,
+      confirmText: 'Hapus Mapel',
+      cancelText: 'Batal',
+      isDestructive: true,
+      onConfirm: () => onDeleteSubject(id),
+    });
   };
 
   return (

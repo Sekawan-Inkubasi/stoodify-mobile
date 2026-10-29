@@ -9,6 +9,7 @@ import {
   FileText
 } from 'lucide-react';
 import { Task } from '../../types';
+import { useDialog } from '../../context/DialogContext';
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -27,6 +28,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onStartFocus,
   onDeleteTask,
 }) => {
+  const { showConfirm } = useDialog();
   if (!isOpen || !task) return null;
 
   const isCompleted = task.status === 'completed';
@@ -72,10 +74,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
-                if (confirm('Yakin ingin menghapus tugas ini?')) {
-                  onDeleteTask(task.id);
-                  onClose();
-                }
+                showConfirm({
+                  title: 'Hapus Tugas',
+                  message: `Yakin ingin menghapus tugas "${task.title}"?`,
+                  confirmText: 'Hapus Tugas',
+                  cancelText: 'Batal',
+                  isDestructive: true,
+                  onConfirm: () => {
+                    onDeleteTask(task.id);
+                    onClose();
+                  },
+                });
               }}
               className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-rose-600 flex items-center justify-center hover:bg-rose-50 transition-colors cursor-pointer"
               title="Hapus Tugas"

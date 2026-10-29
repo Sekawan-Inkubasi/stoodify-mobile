@@ -18,6 +18,7 @@ import { NotificationsModal } from './components/modals/NotificationsModal';
 import { ProPaywallModal } from './components/modals/ProPaywallModal';
 import { ManageSubjectsModal } from './components/modals/ManageSubjectsModal';
 import { AddScheduleModal } from './components/modals/AddScheduleModal';
+import { useDialog } from './context/DialogContext';
 
 // Mock Data (Fallback)
 import { 
@@ -42,6 +43,8 @@ import {
 } from './services';
 
 export function App() {
+  const { showAlert } = useDialog();
+
   // Authentication status
   const [isLoggedIn, setIsLoggedIn] = useState(authService.isLoggedIn());
 
@@ -193,12 +196,12 @@ export function App() {
         notes: newTask.notes,
       });
       setTasks(prev => [created, ...prev]);
-      alert(`Tugas "${created.title}" berhasil ditambahkan dan disinkronkan ke database backend! ✨`);
+      showAlert(`Tugas "${created.title}" berhasil ditambahkan dan disinkronkan ke database backend! ✨`, 'Tugas Berhasil Ditambahkan', 'success');
     } catch {
       const id = `task-${Date.now()}`;
       const created: Task = { ...newTask, id };
       setTasks(prev => [created, ...prev]);
-      alert(`Tugas "${created.title}" berhasil ditambahkan! ✨`);
+      showAlert(`Tugas "${created.title}" berhasil ditambahkan! ✨`, 'Tugas Ditambahkan', 'success');
     }
   };
 
@@ -238,9 +241,9 @@ export function App() {
       if (updated && updated.length > 0) {
         setSessions(updated);
       }
-      alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dari model AI backend.');
+      showAlert('Urutan prioritas belajar telah diperbarui dari model AI backend.', 'AI Adaptive Rescheduling Aktif', 'info');
     } catch {
-      alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.');
+      showAlert('Urutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.', 'AI Adaptive Rescheduling Aktif', 'info');
     }
   };
 
@@ -255,12 +258,12 @@ export function App() {
     try {
       const created = await subjectService.createSubject(newSub);
       setSubjects(prev => [...prev, created]);
-      alert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database! ✨`);
+      showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database! ✨`, 'Mata Pelajaran Ditambahkan', 'success');
     } catch {
       const id = `sub-${Date.now()}`;
       const created: Subject = { ...newSub, id, totalTasks: 0 };
       setSubjects(prev => [...prev, created]);
-      alert(`Mata pelajaran "${created.name}" berhasil ditambahkan! ✨`);
+      showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan! ✨`, 'Mata Pelajaran Ditambahkan', 'success');
     }
   };
 
@@ -293,7 +296,7 @@ export function App() {
       console.warn('Gagal menghapus subject di backend:', e);
     }
     if (subjectToDelete) {
-      alert(`Mata pelajaran "${subjectToDelete.name}" telah dihapus.`);
+      showAlert(`Mata pelajaran "${subjectToDelete.name}" telah dihapus.`, 'Mata Pelajaran Dihapus', 'info');
     }
   };
 
@@ -304,16 +307,16 @@ export function App() {
     try {
       const created = await scheduleService.createSchedule(newItem);
       setSchedule(prev => [...prev, created]);
-      alert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal database! 📅`);
+      showAlert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal database! 📅`, 'Jadwal Ditambahkan', 'success');
     } catch (err: any) {
       if (err.status === 409) {
-        alert('⚠️ Terdeteksi konflik jadwal! Jam pelajaran bentrok dengan jadwal lain pada hari yang sama.');
+        showAlert('Terdeteksi konflik jadwal! Jam pelajaran bentrok dengan jadwal lain pada hari yang sama.', 'Konflik Jadwal Pelajaran', 'warning');
         return;
       }
       const id = `sch-${Date.now()}`;
       const created: ScheduleItem = { ...newItem, id };
       setSchedule(prev => [...prev, created]);
-      alert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal hari ${created.day}! 📅`);
+      showAlert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal hari ${created.day}! 📅`, 'Jadwal Ditambahkan', 'success');
     }
   };
 
@@ -432,7 +435,7 @@ export function App() {
                 user={user}
                 subjectsCount={subjects.length}
                 onOpenProModal={() => setIsProModalOpen(true)}
-                onOpenHelp={() => alert('Pusat Bantuan Stoodify: Hubungi tim via kontak support atau baca panduan AI.')}
+                onOpenHelp={() => showAlert('Hubungi tim kami via kontak support sekolah atau baca panduan asisten AI Stoodify untuk tips belajar efektif.', 'Pusat Bantuan Stoodify', 'info')}
                 onOpenManageSubjects={() => setIsManageSubjectsOpen(true)}
                 onLogout={handleLogout}
               />

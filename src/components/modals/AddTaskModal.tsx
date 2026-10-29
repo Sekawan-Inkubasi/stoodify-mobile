@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Subject, Task, TaskAttachment } from '../../types';
 import { CameraCaptureModal } from './CameraCaptureModal';
+import { useDialog } from '../../context/DialogContext';
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   onAddTask,
   onOpenManageSubjects,
 }) => {
+  const { showAlert } = useDialog();
   if (!isOpen) return null;
 
   // Form states
@@ -82,7 +84,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
     const maxSizeBytes = 15 * 1024 * 1024; // 15 MB
     if (file.size > maxSizeBytes) {
-      alert(`Ukuran file "${file.name}" (${formatFileSize(file.size)}) melebihi batas maksimal 15 MB! Silakan pilih file yang lebih kecil.`);
+      showAlert(`Ukuran file "${file.name}" (${formatFileSize(file.size)}) melebihi batas maksimal 15 MB. Silakan pilih file yang lebih kecil.`, 'Ukuran File Terlalu Besar', 'warning');
       return;
     }
 

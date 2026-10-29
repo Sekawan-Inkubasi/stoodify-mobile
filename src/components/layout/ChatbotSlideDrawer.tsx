@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -14,6 +16,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { Task, AISession } from '../../types';
+import { useDialog } from '../../context/DialogContext';
 
 export interface ChatMessage {
   id: string;
@@ -43,6 +46,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
   onReschedulePrompt,
   onOpenFocusTimer,
 }) => {
+  const { showAlert } = useDialog();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome-1',
@@ -456,9 +460,54 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
                       : 'bg-white text-slate-800 rounded-tl-xs border border-slate-200/80'
                   }`}
                 >
-                  <p className="whitespace-pre-line font-medium">
-                    {msg.text}
-                  </p>
+                  {msg.sender === 'ai' ? (
+                    <div className="leading-relaxed font-normal text-slate-800 break-words space-y-1.5">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({ children }) => <p className="leading-relaxed mb-1.5 last:mb-0">{children}</p>,
+                          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+                          em: ({ children }) => <em className="italic text-slate-700">{children}</em>,
+                          ul: ({ children }) => <ul className="list-disc pl-4 my-1.5 space-y-0.5">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal pl-4 my-1.5 space-y-0.5">{children}</ol>,
+                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                          code: ({ children }) => (
+                            <code className="bg-slate-100 text-[#0062FF] font-mono px-1 py-0.5 rounded text-[10.5px]">
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children }) => (
+                            <pre className="bg-slate-900 text-slate-100 p-2.5 rounded-xl my-2 overflow-x-auto text-[10.5px] font-mono">
+                              {children}
+                            </pre>
+                          ),
+                          h1: ({ children }) => <h1 className="text-xs font-bold text-slate-900 mt-2 mb-1">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-xs font-bold text-slate-900 mt-2 mb-1">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-xs font-bold text-slate-900 mt-1.5 mb-0.5">{children}</h3>,
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-2 border-[#0062FF] pl-2 italic text-slate-600 my-1.5">
+                              {children}
+                            </blockquote>
+                          ),
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto my-2">
+                              <table className="min-w-full divide-y divide-slate-200 border border-slate-200 rounded-lg text-[10.5px]">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          th: ({ children }) => <th className="px-2 py-1 bg-slate-50 font-bold text-left">{children}</th>,
+                          td: ({ children }) => <td className="px-2 py-1 border-t border-slate-100">{children}</td>,
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-line font-medium">
+                      {msg.text}
+                    </p>
+                  )}
 
                   {/* Interactive Action Buttons inside AI Responses */}
                   {msg.actionType && msg.actionLabel && (
@@ -512,7 +561,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
               {/* Camera / Scan Soal Button */}
               <button
                 type="button"
-                onClick={() => alert('📷 Fitur Scan Soal / PR: Siap memindai foto lembar tugasmu untuk dianalisis oleh Stoodify AI!')}
+                onClick={() => showAlert('Fitur Scan Soal / PR siap memindai foto lembar tugasmu untuk dianalisis oleh Stoodify AI!', 'Scan Soal & PR', 'info')}
                 className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"
                 title="Foto Soal / Dokumen PR"
               >

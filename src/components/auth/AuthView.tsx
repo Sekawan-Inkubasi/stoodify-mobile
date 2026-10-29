@@ -4,12 +4,12 @@ import {
   Eye, 
   EyeOff, 
   Check, 
-  Sparkles, 
   Info,
   Loader2
 } from 'lucide-react';
 import stoodifyLogo from '../../assets/logo_stoodify.png';
 import { authService } from '../../services/authService';
+import { useDialog } from '../../context/DialogContext';
 
 interface AuthViewProps {
   onLoginSuccess: (name: string, email: string) => void;
@@ -38,6 +38,8 @@ const GoogleIcon = () => (
 );
 
 export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
+  const { showAlert } = useDialog();
+
   // Mode: 'welcome' (Layar Sambutan Awal), 'login' (Masuk), 'register' (Daftar Akun)
   const [mode, setMode] = useState<'welcome' | 'login' | 'register'>('welcome');
   
@@ -51,14 +53,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('naufal.pratama@student.id');
-  const [loginPassword, setLoginPassword] = useState('password123');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Register form state
-  const [regName, setRegName] = useState('Kevin Raditya');
-  const [regEmail, setRegEmail] = useState('kevin.raditya@student.id');
-  const [regPassword, setRegPassword] = useState('password123');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('password123');
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,19 +94,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
       onLoginSuccess(user.name, user.email);
     } catch (err: any) {
       setErrorMessage(err.message || 'Gagal mendaftar akun.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemoLogin = async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-    try {
-      const user = await authService.loginDemo();
-      onLoginSuccess(user.name, user.email);
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Gagal terhubung ke backend demo.');
     } finally {
       setIsLoading(false);
     }
@@ -168,16 +157,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 className="w-full py-3.5 px-6 rounded-full text-[#1E50FF] font-semibold text-xs sm:text-sm tracking-wide bg-white border border-[#1E50FF] hover:bg-blue-50/50 active:scale-98 transition-all cursor-pointer text-center"
               >
                 Daftar Akun Baru
-              </button>
-
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={handleQuickDemoLogin}
-                className="w-full text-center text-[11px] font-semibold text-slate-400 hover:text-blue-600 transition-colors pt-1 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" /> : null}
-                <span>Coba Mode Demo (Naufal Pratama - Live API)</span>
               </button>
             </div>
           </div>
@@ -250,7 +229,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="naufal.pratama@student.id"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
@@ -266,7 +244,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Masukkan kata sandi"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
@@ -296,7 +273,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               <div className="text-center pt-0.5">
                 <button
                   type="button"
-                  onClick={() => alert('Petunjuk pemulihan kata sandi telah dikirim ke email terdaftar.')}
+                  onClick={() => showAlert('Petunjuk pemulihan kata sandi telah dikirim ke email terdaftar.', 'Lupa Kata Sandi', 'info')}
                   className="text-xs font-semibold text-slate-600 hover:text-[#1E50FF] transition-colors cursor-pointer"
                 >
                   Lupa Kata Sandi?
@@ -310,32 +287,16 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 <div className="h-px flex-1 bg-slate-200/80" />
               </div>
 
-              {/* Social & Demo Buttons */}
+              {/* Social Buttons */}
               <div className="space-y-2.5">
                 {/* Continue with Google */}
                 <button
                   type="button"
-                  disabled={isLoading}
-                  onClick={handleQuickDemoLogin}
+                  onClick={() => showAlert('Fitur Single Sign-On (SSO) Akun Siswa Google Workspace saat ini sedang dipersiapkan untuk sekolah terdaftar.', 'Masuk Akun Siswa', 'info')}
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-slate-700 font-semibold text-xs py-3 px-4 rounded-2xl border border-slate-200/60 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
                   <GoogleIcon />
                   <span>Lanjutkan dengan Akun Siswa</span>
-                </button>
-
-                {/* 1-Click Demo Login */}
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={handleQuickDemoLogin}
-                  className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-[#1E50FF] font-semibold text-xs py-3 px-4 rounded-2xl border border-blue-200/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#1E50FF]" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 fill-[#1E50FF]" />
-                  )}
-                  <span>Masuk Cepat Mode Demo (Live API)</span>
                 </button>
               </div>
             </form>
@@ -407,7 +368,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   required
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  placeholder="Contoh: Kevin Raditya"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
@@ -422,7 +382,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="kevin.raditya@student.id"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
                 <p className="text-[10px] text-slate-500 font-normal flex items-center gap-1 mt-1">
@@ -442,7 +401,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="Buat kata sandi baru"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
@@ -467,7 +425,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={regConfirmPassword}
                     onChange={(e) => setRegConfirmPassword(e.target.value)}
-                    placeholder="Ulangi kata sandi"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
