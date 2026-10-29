@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Clock, 
@@ -17,7 +17,7 @@ interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onToggleTaskComplete: (taskId: string) => void;
-  onStartFocus: (task: Task) => void;
+  onStartFocus: (task: Task, durationMinutes?: number) => void;
   onDeleteTask: (taskId: string) => void;
 }
 
@@ -32,6 +32,19 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   if (!isOpen || !task) return null;
 
   const isCompleted = task.status === 'completed';
+
+  // Sesi Fokus duration selection states
+  const [selectedDuration, setSelectedDuration] = useState<number>(task.estimatedDurationMinutes || 45);
+  const [isCustomDuration, setIsCustomDuration] = useState<boolean>(false);
+  const [customInput, setCustomInput] = useState<string>('');
+
+  useEffect(() => {
+    if (task) {
+      setSelectedDuration(task.estimatedDurationMinutes || 45);
+      setIsCustomDuration(false);
+      setCustomInput('');
+    }
+  }, [task.id]);
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -190,17 +203,86 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </p>
           </div>
 
+          {/* Opsi Pilihan & Input Durasi Sesi Fokus */}
+          <div className="bg-slate-50 p-3.5 rounded-3xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800 text-[11px] flex items-center gap-1.5">
+                <Timer className="w-3.5 h-3.5 text-[#0062FF]" />
+                <span>Atur Durasi Sesi Fokus</span>
+              </span>
+              <span className="text-xs font-bold text-[#0062FF]">
+                {selectedDuration} Menit
+              </span>
+            </div>
+
+            {/* Presets Grid */}
+            <div className="grid grid-cols-4 gap-1.5">
+              {[25, 45, 60].map((mins) => (
+                <button
+                  type="button"
+                  key={mins}
+                  onClick={() => {
+                    setSelectedDuration(mins);
+                    setIsCustomDuration(false);
+                  }}
+                  className={`py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
+                    !isCustomDuration && selectedDuration === mins
+                      ? 'bg-[#0062FF] text-white shadow-xs'
+                      : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                  }`}
+                >
+                  {mins}m
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomDuration(true);
+                  if (!customInput) setCustomInput(String(selectedDuration));
+                }}
+                className={`py-1.5 rounded-xl font-bold text-[11px] transition-all cursor-pointer ${
+                  isCustomDuration
+                    ? 'bg-[#0062FF] text-white shadow-xs'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                }`}
+              >
+                Kustom
+              </button>
+            </div>
+
+            {/* Custom Input Field */}
+            {isCustomDuration && (
+              <div className="flex items-center gap-2 pt-1 animate-in fade-in duration-150">
+                <input
+                  type="number"
+                  min="5"
+                  max="240"
+                  value={customInput}
+                  onChange={(e) => {
+                    setCustomInput(e.target.value);
+                    const val = Number(e.target.value);
+                    if (val > 0) setSelectedDuration(val);
+                  }}
+                  placeholder="Misal: 35"
+                  className="w-full bg-white border border-blue-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+                <span className="text-xs font-semibold text-slate-500 shrink-0">Menit</span>
+              </div>
+            )}
+          </div>
+
           {/* Action CTAs */}
           <div className="space-y-2 pt-2 border-t border-slate-100">
             <button
               onClick={() => {
                 onClose();
-                onStartFocus(task);
+                onStartFocus(task, selectedDuration);
               }}
               className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-3.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
             >
               <Timer className="w-4 h-4" />
-              <span>Mulai Sesi Fokus ({task.estimatedDurationMinutes}m)</span>
+              <span>Mulai Sesi Fokus ({selectedDuration}m)</span>
             </button>
 
             <button

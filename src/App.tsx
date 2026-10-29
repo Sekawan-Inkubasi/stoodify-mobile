@@ -54,6 +54,7 @@ export function App() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
   const [focusTask, setFocusTask] = useState<Task | undefined>(undefined);
+  const [focusDuration, setFocusDuration] = useState<number>(45);
   const [isPredictionsOpen, setIsPredictionsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
@@ -99,8 +100,15 @@ export function App() {
     setSelectedTask(null);
   };
 
-  const handleOpenFocusTimer = (task?: Task) => {
+  const handleOpenFocusTimer = (task?: Task, durationMinutes?: number) => {
     setFocusTask(task);
+    if (durationMinutes) {
+      setFocusDuration(durationMinutes);
+    } else if (task) {
+      setFocusDuration(task.estimatedDurationMinutes || 45);
+    } else {
+      setFocusDuration(25);
+    }
     setIsFocusTimerOpen(true);
   };
 
@@ -310,6 +318,7 @@ export function App() {
         isOpen={isFocusTimerOpen}
         onClose={() => setIsFocusTimerOpen(false)}
         task={focusTask}
+        initialMinutes={focusDuration}
         onSessionComplete={handleSessionComplete}
       />
 

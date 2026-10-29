@@ -15,6 +15,7 @@ interface FocusTimerModalProps {
   isOpen: boolean;
   onClose: () => void;
   task?: Task;
+  initialMinutes?: number;
   onSessionComplete?: (taskId?: string, minutesSpent?: number) => void;
 }
 
@@ -22,15 +23,23 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
   isOpen,
   onClose,
   task,
+  initialMinutes,
   onSessionComplete,
 }) => {
   if (!isOpen) return null;
 
-  const defaultMinutes = task ? task.estimatedDurationMinutes || 45 : 25;
+  const defaultMinutes = initialMinutes || (task ? task.estimatedDurationMinutes || 45 : 25);
   const [totalSeconds, setTotalSeconds] = useState(defaultMinutes * 60);
   const [secondsRemaining, setSecondsRemaining] = useState(defaultMinutes * 60);
   const [isActive, setIsActive] = useState(false);
   const [ambientAudio, setAmbientAudio] = useState(false);
+
+  useEffect(() => {
+    const mins = initialMinutes || (task ? task.estimatedDurationMinutes || 45 : 25);
+    setTotalSeconds(mins * 60);
+    setSecondsRemaining(mins * 60);
+    setIsActive(false);
+  }, [initialMinutes, task?.id]);
 
   useEffect(() => {
     let interval: any = null;
