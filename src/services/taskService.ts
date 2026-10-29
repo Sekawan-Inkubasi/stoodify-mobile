@@ -1,5 +1,5 @@
 import { apiRequest } from "./apiClient";
-import { Task, PriorityLevel, TaskStatus } from "../types";
+import { Task, PriorityLevel, TaskStatus, Subject } from "../types";
 import { subjectService } from "./subjectService";
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -38,14 +38,26 @@ function formatDeadlineDate(dateStr: string): string {
   }
 }
 
-export function adaptBackendTask(raw: any): Task {
-  const subjectName =
-    raw.subject?.name || raw.subject_name || raw.subject || "Umum";
-  const color =
-    raw.subject?.color ||
-    raw.subject_color ||
-    SUBJECT_COLORS[subjectName] ||
-    SUBJECT_COLORS.default;
+export function adaptBackendTask(
+  raw: any,
+  subjectsMap?: Map<string | number, { name: string; color: string }>,
+): Task {
+  let subjectName = raw.subject?.name || raw.subject_name;
+  let color = raw.subject?.color || raw.subject_color;
+
+  if (!subjectName && raw.subject_id && subjectsMap) {
+    const s =
+      subjectsMap.get(raw.subject_id) ||
+      subjectsMap.get(String(raw.subject_id)) ||
+      subjectsMap.get(Number(raw.subject_id));
+    if (s) {
+      subjectName = s.name;
+      color = color || s.color;
+    }
+  }
+
+  if (!subjectName) subjectName = typeof raw.subject === "string" ? raw.subject : "Umum";
+  if (!color) color = SUBJECT_COLORS[subjectName] || SUBJECT_COLORS.default;
 
   let difficulty: "Mudah" | "Sedang" | "Sulit" = "Sedang";
   const diffVal = typeof raw.difficulty === "number" ? raw.difficulty : 3;
@@ -97,11 +109,14 @@ export function adaptBackendTask(raw: any): Task {
 }
 
 export const taskService = {
-  async getTasks(): Promise<Task[]> {
+  async getTasks(subjects?: Subject[]): Promise<Task[]> {
     try {
       const res = await apiRequest("/tasks", { method: "GET" });
       const list = Array.isArray(res) ? res : res?.tasks || res?.data || [];
-      return list.map(adaptBackendTask);
+      const subjectsMap = subjects
+        ? new Map(subjects.map((s) => [s.id, { name: s.name, color: s.color }]))
+        : undefined;
+      return list.map((item: any) => adaptBackendTask(item, subjectsMap));
     } catch (err) {
       console.warn("Gagal memuat tugas dari API:", err);
       return [];

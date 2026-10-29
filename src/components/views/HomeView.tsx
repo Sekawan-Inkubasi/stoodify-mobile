@@ -24,6 +24,7 @@ interface HomeViewProps {
   tasks: Task[];
   sessions: AISession[];
   predictions: MaterialPrediction[];
+  isLoading?: boolean;
   onOpenAddTask: () => void;
   onOpenFocusTimer: (task?: Task) => void;
   onOpenPredictions: () => void;
@@ -40,6 +41,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   tasks,
   sessions,
   predictions,
+  isLoading,
   onOpenAddTask,
   onOpenFocusTimer,
   onOpenPredictions,
@@ -83,16 +85,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <h2 className="text-[15px] font-bold text-slate-900 tracking-tight">
-                Halo, {user.name.split(' ')[0]}
+                Halo, {user.name ? user.name.split(' ')[0] : 'Siswa'}
               </h2>
               <span className="text-[9px] font-semibold bg-[#0062FF]/10 text-[#0062FF] px-2 py-0.2 rounded-full">
-                Fase F
+                {user.grade || 'Fase F'}
               </span>
             </div>
             <p className="text-[11px] font-normal text-slate-500 flex items-center gap-1">
-              <span>{user.school.split(' ')[0]}</span>
+              <span>{user.school ? user.school.split(' ')[0] : 'Stoodify'}</span>
               <span className="text-[10px] font-medium text-amber-700 bg-amber-100/90 px-1.5 py-0.2 rounded-full">
-                🔥 {user.streakDays}d Streak
+                🔥 {user.streakDays || 0}d Streak
               </span>
             </p>
           </div>
@@ -264,7 +266,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             Insight AI Beban Belajar
           </h4>
           <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5 font-normal">
-            1 tugas kimia berada di urutan prioritas teratas hari ini.
+            {todaySession
+              ? `${todaySession.taskTitle} berada di urutan prioritas teratas hari ini.`
+              : criticalCount > 0
+              ? `${criticalCount} tugas membutuhkan perhatian prioritas segera.`
+              : tasks.length > 0
+              ? 'Seluruh tugas belajar berada dalam status aman & terkendali.'
+              : 'Belum ada tugas terdaftar. Tekan tombol Tambah untuk memulai.'}
           </p>
         </div>
         <button
@@ -275,20 +283,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </button>
       </div>
 
-      {/* ========================================================= */}
-      {/* 5. HERO FEATURED CARD ("UX Motion Lab" style + AI Reason) */}
-      {/* ========================================================= */}
-      {todaySession && (
+      {todaySession ? (
         <div className="bg-white rounded-[28px] p-5 shadow-[0_12px_32px_rgba(24,54,120,0.07)] border border-white relative overflow-hidden transition-all">
-          
-          {/* Header Row: Session Slot Tag & Circular Progress 2/3 */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-1.5 bg-blue-50 text-[#0062FF] px-3 py-1 rounded-full text-[11px] font-semibold">
               <Sparkles className="w-3.5 h-3.5 stroke-[2px]" />
               <span>{todaySession.timeSlot || 'Prioritas #1'} &bull; {todaySession.sessionDate}</span>
             </div>
 
-            {/* Circular Progress Badge */}
             <div className="relative w-9 h-9 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
                 <circle
@@ -307,17 +309,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="text-[#0062FF]"
                   strokeWidth="3.5"
                   strokeDasharray={2 * Math.PI * 14}
-                  strokeDashoffset={2 * Math.PI * 14 * (1 - 2 / 3)}
+                  strokeDashoffset={2 * Math.PI * 14 * (1 - (todaySession.targetProgress || 50) / 100)}
                   strokeLinecap="round"
                   stroke="currentColor"
                   fill="transparent"
                 />
               </svg>
-              <span className="absolute text-[11px] font-bold text-slate-700">2/3</span>
+              <span className="absolute text-[10px] font-bold text-slate-700">{todaySession.targetProgress || 50}%</span>
             </div>
           </div>
 
-          {/* Title & Subject Pill */}
           <div className="flex items-start justify-between gap-3 mb-2.5">
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 mb-1">
@@ -336,19 +337,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </h3>
             </div>
 
-            {/* 3D Glossy Badge Icon */}
             <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#0062FF] to-indigo-500 shadow-md shadow-blue-500/20 flex flex-col items-center justify-center text-white shrink-0">
               <span className="text-[9px] font-semibold tracking-wider uppercase opacity-85">PRIORITAS</span>
               <span className="text-sm font-bold leading-none mt-0.5">#1</span>
             </div>
           </div>
 
-          {/* Transparent AI Reason Box (Clean font-normal leading-relaxed) */}
           <p className="text-[11px] text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 leading-relaxed font-normal mb-3.5">
             <strong className="font-semibold text-slate-800">Pertimbangan AI:</strong> {todaySession.reason}
           </p>
 
-          {/* Action Row: Blue Full-width Pill Button */}
           <div className="pt-0.5">
             <button
               onClick={() => {
@@ -360,7 +358,69 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span>Mulai Belajar Sekarang</span>
             </button>
           </div>
+        </div>
+      ) : pendingTasks.length > 0 ? (
+        <div className="bg-white rounded-[28px] p-5 shadow-[0_12px_32px_rgba(24,54,120,0.07)] border border-white relative overflow-hidden transition-all">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5 bg-blue-50 text-[#0062FF] px-3 py-1 rounded-full text-[11px] font-semibold">
+              <Sparkles className="w-3.5 h-3.5 stroke-[2px]" />
+              <span>Prioritas Utama &bull; {pendingTasks[0].deadlineFormatted}</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              {pendingTasks[0].taskType}
+            </span>
+          </div>
 
+          <div className="flex items-start justify-between gap-3 mb-2.5">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 mb-1">
+                <span 
+                  className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full text-white"
+                  style={{ backgroundColor: pendingTasks[0].subjectColor }}
+                >
+                  {pendingTasks[0].subject}
+                </span>
+                <span className="text-[10px] font-normal text-slate-400">
+                  Estimasi: {pendingTasks[0].estimatedDurationMinutes}m
+                </span>
+              </div>
+              <h3 className="text-[15px] font-bold text-slate-900 tracking-tight leading-snug">
+                {pendingTasks[0].title}
+              </h3>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 leading-relaxed font-normal mb-3.5">
+            <strong className="font-semibold text-slate-800">Pertimbangan AI:</strong> {pendingTasks[0].aiReasoning || 'Tugas ini menempati prioritas teratas berdasarkan batas waktu.'}
+          </p>
+
+          <div className="pt-0.5">
+            <button
+              onClick={() => onOpenFocusTimer(pendingTasks[0])}
+              className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-3 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <span>Mulai Belajar Sekarang</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-[28px] p-6 shadow-[0_12px_32px_rgba(24,54,120,0.06)] border border-white text-center space-y-3">
+          <div className="w-12 h-12 bg-blue-50 text-[#0062FF] rounded-full flex items-center justify-center mx-auto">
+            <Target className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">Belum Ada Agenda Belajar</h3>
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto mt-1 leading-relaxed">
+              Mulai dengan menambahkan tugas atau mata pelajaran sekolah untuk mendapatkan jadwal belajar adaptif AI.
+            </p>
+          </div>
+          <button
+            onClick={onOpenAddTask}
+            className="bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-2.5 px-5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer inline-flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4 stroke-[2.2px]" />
+            <span>Tambah Tugas Pertama</span>
+          </button>
         </div>
       )}
 
@@ -379,13 +439,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Compass className="w-4 h-4 text-white stroke-[2px]" />
             </div>
             <span className="text-[10px] font-semibold bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-white">
-              2/3
+              {pendingTasks.length} Aktif
             </span>
           </div>
 
           <div className="my-1.5">
             <h4 className="text-xs font-semibold leading-snug text-white tracking-normal group-hover:underline">
-              Lanjutkan Materi Kimia Titrasi
+              {pendingTasks[0] ? `Lanjutkan ${pendingTasks[0].title}` : 'Buat Tugas Belajar Baru'}
             </h4>
           </div>
 
@@ -394,7 +454,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <img 
                 src="/logo_stoodify.png" 
                 alt="Stoodify" 
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain" 
               />
             </div>
             <span className="text-[11px] font-medium text-white/90 truncate">
@@ -413,13 +473,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <Target className="w-4 h-4 text-white stroke-[2px]" />
             </div>
             <span className="text-[10px] font-semibold bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-white">
-              1/3
+              Fokus
             </span>
           </div>
 
           <div className="my-1.5">
             <h4 className="text-xs font-semibold leading-snug text-white tracking-normal group-hover:underline">
-              Rasakan Sensasi Deep Focus 45m
+              Rasakan Sensasi Deep Focus
             </h4>
           </div>
 
@@ -428,7 +488,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <img 
                 src="/logo_stoodify.png" 
                 alt="Stoodify" 
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain" 
               />
             </div>
             <span className="text-[11px] font-medium text-white/90 truncate">
@@ -457,69 +517,75 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         <div className="space-y-2">
-          {urgentTasks.map((task) => {
-            const isCompleted = task.status === 'completed';
+          {urgentTasks.length === 0 ? (
+            <div className="bg-white rounded-2xl p-6 text-center shadow-[0_4px_16px_rgba(20,40,90,0.04)] border border-white space-y-1.5">
+              <p className="text-xs font-bold text-slate-700">Tidak Ada Tugas Mendesak</p>
+              <p className="text-[11px] text-slate-400">
+                {tasks.length > 0 ? 'Semua tugas telah selesai atau tenggat masih longgar.' : 'Belum ada tugas yang dimasukkan ke sistem.'}
+              </p>
+            </div>
+          ) : (
+            urgentTasks.map((task) => {
+              const isCompleted = task.status === 'completed';
 
-            return (
-              <div
-                key={task.id}
-                onClick={() => onSelectTask(task)}
-                className="bg-white rounded-2xl p-3.5 shadow-[0_4px_16px_rgba(20,40,90,0.04)] border border-white hover:border-blue-100 transition-all cursor-pointer flex items-start gap-3 group"
-              >
-                {/* Complete checkbox */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleTaskComplete(task.id);
-                  }}
-                  className="mt-0.5 text-slate-300 hover:text-blue-600 cursor-pointer transition-colors"
+              return (
+                <div
+                  key={task.id}
+                  onClick={() => onSelectTask(task)}
+                  className="bg-white rounded-2xl p-3.5 shadow-[0_4px_16px_rgba(20,40,90,0.04)] border border-white hover:border-blue-100 transition-all cursor-pointer flex items-start gap-3 group"
                 >
-                  {isCompleted ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-50" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-300 group-hover:text-blue-500" />
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleTaskComplete(task.id);
+                    }}
+                    className="mt-0.5 text-slate-300 hover:text-blue-600 cursor-pointer transition-colors"
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-50" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-slate-300 group-hover:text-blue-500" />
+                    )}
+                  </button>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span 
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
-                      style={{ backgroundColor: task.subjectColor }}
-                    >
-                      {task.subject}
-                    </span>
-                    
-                    <span className="text-[10px] font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
-                      {task.priorityLevel === 'critical' ? '⚡ Mendesak' : '🔥 Tinggi'}
-                    </span>
-                  </div>
-
-                  <h4 className={`text-xs font-semibold text-slate-900 truncate ${isCompleted ? 'line-through text-slate-400' : ''}`}>
-                    {task.title}
-                  </h4>
-
-                  {/* Schedule & Deadline */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50 text-[10px] text-slate-500">
-                    <div className="flex items-center gap-1 text-slate-600 font-normal">
-                      <Clock className="w-3 h-3 text-slate-400" />
-                      <span>{task.deadlineFormatted}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span 
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-white"
+                        style={{ backgroundColor: task.subjectColor }}
+                      >
+                        {task.subject}
+                      </span>
+                      
+                      <span className="text-[10px] font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+                        {task.priorityLevel === 'critical' ? '⚡ Mendesak' : '🔥 Tinggi'}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className={`font-bold px-2 py-0.5 rounded-md ${
-                        isCompleted ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50'
-                      }`}>
-                        {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
-                      </span>
+                    <h4 className={`text-xs font-semibold text-slate-900 truncate ${isCompleted ? 'line-through text-slate-400' : ''}`}>
+                      {task.title}
+                    </h4>
+
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50 text-[10px] text-slate-500">
+                      <div className="flex items-center gap-1 text-slate-600 font-normal">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <span>{task.deadlineFormatted}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className={`font-bold px-2 py-0.5 rounded-md ${
+                          isCompleted ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50'
+                        }`}>
+                          {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MobileContainer } from './components/layout/MobileContainer';
 import { BottomNavigation } from './components/layout/BottomNavigation';
 import { ChatbotSlideDrawer } from './components/layout/ChatbotSlideDrawer';
@@ -20,17 +20,7 @@ import { ManageSubjectsModal } from './components/modals/ManageSubjectsModal';
 import { AddScheduleModal } from './components/modals/AddScheduleModal';
 import { useDialog } from './context/DialogContext';
 
-// Mock Data (Fallback)
-import { 
-  mockUser, 
-  mockSubjects, 
-  initialTasks, 
-  initialSessions, 
-  mockSchedule, 
-  mockPredictions, 
-  mockNotifications 
-} from './data/mockData';
-import { Task, AISession, Subject, ScheduleItem } from './types';
+import { Task, AISession, Subject, ScheduleItem, AppNotification, MaterialPrediction, UserProfile } from './types';
 
 // API Services
 import { 
@@ -39,7 +29,9 @@ import {
   scheduleService, 
   subjectService, 
   studySessionService, 
-  statisticsService 
+  statisticsService,
+  notificationService,
+  predictionService 
 } from './services';
 
 export function App() {
@@ -51,13 +43,24 @@ export function App() {
   // Active navigation tab
   const [activeTab, setActiveTab] = useState('home');
 
-  // App data state
-  const [user, setUser] = useState(mockUser);
-  const [subjects, setSubjects] = useState<Subject[]>(mockSubjects);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [sessions, setSessions] = useState<AISession[]>(initialSessions);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(mockSchedule);
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [user, setUser] = useState<UserProfile>({
+    name: 'Siswa',
+    grade: 'SMA - Fase F',
+    school: 'Stoodify',
+    email: '',
+    streakDays: 0,
+    totalStudyHours: 0,
+    completedTasksThisWeek: 0,
+    onTimeRate: 0,
+    isPro: false,
+  });
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [sessions, setSessions] = useState<AISession[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [predictions, setPredictions] = useState<MaterialPrediction[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   // Modal visibility states
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -73,6 +76,46 @@ export function App() {
   const [scheduleDayTarget, setScheduleDayTarget] = useState<'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat'>('Senin');
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
+  const refreshBackendData = useCallback(async () => {
+    if (!authService.isLoggedIn()) return;
+    setIsLoadingData(true);
+    try {
+      const apiSubjects = await subjectService.getSubjects();
+      const [apiTasks, apiSchedules, apiStats, apiNotifs] = await Promise.all([
+        taskService.getTasks(apiSubjects),
+        scheduleService.getSchedules(),
+        statisticsService.getOverview(),
+        notificationService.getNotifications(),
+      ]);
+
+      const [apiSessions, apiPredictions] = await Promise.all([
+        studySessionService.getRecommendations(apiTasks),
+        predictionService.getAllPredictions(apiSubjects),
+      ]);
+
+      setSubjects(apiSubjects || []);
+      setTasks(apiTasks || []);
+      setSchedule(apiSchedules || []);
+      setSessions(apiSessions || []);
+      setNotifications(apiNotifs || []);
+      setPredictions(apiPredictions || []);
+
+      if (apiStats) {
+        setUser(prev => ({
+          ...prev,
+          streakDays: apiStats.streakDays,
+          totalStudyHours: apiStats.totalStudyHours,
+          completedTasksThisWeek: apiStats.completedTasksThisWeek,
+          onTimeRate: apiStats.onTimeRate,
+        }));
+      }
+    } catch (err) {
+      console.warn('Gagal memuat live data dari Stoodify Backend API:', err);
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, []);
+
   // Check persistent login on load
   useEffect(() => {
     async function checkAuth() {
@@ -87,79 +130,19 @@ export function App() {
             school: me.school || prev.school,
           }));
           setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
         }
       }
     }
     checkAuth();
   }, []);
 
-  // Load real data from backend API when authenticated
   useEffect(() => {
-    if (!isLoggedIn) return;
-
-    let isMounted = true;
-    async function fetchBackendData() {
-      try {
-        const [apiTasks, apiSchedules, apiSubjects, apiSessions, apiStats] = await Promise.all([
-          taskService.getTasks(),
-          scheduleService.getSchedules(),
-          subjectService.getSubjects(),
-          studySessionService.getRecommendations(),
-          statisticsService.getOverview(),
-        ]);
-
-        if (!isMounted) return;
-
-        if (apiTasks && apiTasks.length > 0) {
-          setTasks(apiTasks);
-        }
-        if (apiSchedules && apiSchedules.length > 0) {
-          setSchedule(apiSchedules);
-        }
-        if (apiSubjects && apiSubjects.length > 0) {
-          setSubjects(apiSubjects);
-        } else {
-          // Inisialisasi default subjects di database untuk user baru
-          const defaultSubjs = [
-            { name: 'Matematika', color: '#2563EB', difficulty: 'Sulit' as const },
-            { name: 'Fisika', color: '#4F46E5', difficulty: 'Sulit' as const },
-            { name: 'Kimia', color: '#0284C7', difficulty: 'Sedang' as const },
-            { name: 'Biologi', color: '#059669', difficulty: 'Sedang' as const },
-            { name: 'Bahasa Indonesia', color: '#D97706', difficulty: 'Mudah' as const },
-            { name: 'Bahasa Inggris', color: '#7C3AED', difficulty: 'Sedang' as const },
-          ];
-          try {
-            const createdSubjs = await Promise.all(
-              defaultSubjs.map(s => subjectService.createSubject(s))
-            );
-            if (isMounted && createdSubjs.length > 0) {
-              setSubjects(createdSubjs);
-            }
-          } catch (e) {
-            console.warn('Gagal seeding default subjects ke backend:', e);
-          }
-        }
-        if (apiSessions && apiSessions.length > 0) {
-          setSessions(apiSessions);
-        }
-        if (apiStats) {
-          setUser(prev => ({
-            ...prev,
-            streakDays: apiStats.streakDays,
-            totalStudyHours: apiStats.totalStudyHours,
-            completedTasksThisWeek: apiStats.completedTasksThisWeek,
-          }));
-        }
-      } catch (err) {
-        console.warn('Gagal memuat live data dari Stoodify Backend API:', err);
-      }
+    if (isLoggedIn) {
+      refreshBackendData();
     }
-
-    fetchBackendData();
-    return () => {
-      isMounted = false;
-    };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, refreshBackendData]);
 
   // Urgent task count for badge
   const urgentCount = tasks.filter(t => t.status !== 'completed' && (t.priorityLevel === 'critical' || t.priorityLevel === 'high')).length;
@@ -169,17 +152,24 @@ export function App() {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
 
-    const nextStatus = task.status === 'completed' ? 'in_progress' : 'completed';
-    setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: nextStatus } : t)));
-
-    if (selectedTask && selectedTask.id === taskId) {
-      setSelectedTask(prev => (prev ? { ...prev, status: nextStatus } : null));
-    }
-
     try {
-      await taskService.toggleComplete(task);
-    } catch (e) {
-      console.warn('Gagal sinkron status tugas ke backend:', e);
+      const nextStatus = await taskService.toggleComplete(task);
+      setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: nextStatus } : t)));
+
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask(prev => (prev ? { ...prev, status: nextStatus } : null));
+      }
+
+      const stats = await statisticsService.getOverview();
+      setUser(prev => ({
+        ...prev,
+        streakDays: stats.streakDays,
+        totalStudyHours: stats.totalStudyHours,
+        completedTasksThisWeek: stats.completedTasksThisWeek,
+        onTimeRate: stats.onTimeRate,
+      }));
+    } catch (e: any) {
+      showAlert(e.message || 'Gagal mengubah status tugas di server.', 'Gagal Update Tugas', 'warning');
     }
   };
 
@@ -196,22 +186,40 @@ export function App() {
         notes: newTask.notes,
       });
       setTasks(prev => [created, ...prev]);
-      showAlert(`Tugas "${created.title}" berhasil ditambahkan dan disinkronkan ke database backend! ✨`, 'Tugas Berhasil Ditambahkan', 'success');
-    } catch {
-      const id = `task-${Date.now()}`;
-      const created: Task = { ...newTask, id };
-      setTasks(prev => [created, ...prev]);
-      showAlert(`Tugas "${created.title}" berhasil ditambahkan! ✨`, 'Tugas Ditambahkan', 'success');
+      showAlert(`Tugas "${created.title}" berhasil ditambahkan ke database backend! ✨`, 'Tugas Berhasil Ditambahkan', 'success');
+
+      statisticsService.getOverview().then(stats => {
+        setUser(prev => ({
+          ...prev,
+          streakDays: stats.streakDays,
+          totalStudyHours: stats.totalStudyHours,
+          completedTasksThisWeek: stats.completedTasksThisWeek,
+          onTimeRate: stats.onTimeRate,
+        }));
+      });
+    } catch (err: any) {
+      showAlert(err.message || 'Gagal menyimpan tugas ke database backend.', 'Gagal Tambah Tugas', 'warning');
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId));
-    setSelectedTask(null);
     try {
       await taskService.deleteTask(taskId);
-    } catch (e) {
-      console.warn('Gagal menghapus tugas dari backend:', e);
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+      setSelectedTask(null);
+      showAlert('Tugas berhasil dihapus dari database.', 'Tugas Dihapus', 'info');
+
+      statisticsService.getOverview().then(stats => {
+        setUser(prev => ({
+          ...prev,
+          streakDays: stats.streakDays,
+          totalStudyHours: stats.totalStudyHours,
+          completedTasksThisWeek: stats.completedTasksThisWeek,
+          onTimeRate: stats.onTimeRate,
+        }));
+      });
+    } catch (e: any) {
+      showAlert(e.message || 'Gagal menghapus tugas dari database.', 'Gagal Hapus Tugas', 'warning');
     }
   };
 
@@ -227,82 +235,74 @@ export function App() {
     setIsFocusTimerOpen(true);
   };
 
-  const handleSessionComplete = (taskId?: string, minutesSpent: number = 45) => {
-    setUser(prev => ({
-      ...prev,
-      totalStudyHours: Number((prev.totalStudyHours + minutesSpent / 60).toFixed(1)),
-      streakDays: prev.streakDays + 1,
-    }));
+  const handleSessionComplete = async (taskId?: string, minutesSpent: number = 45) => {
+    try {
+      const stats = await statisticsService.getOverview();
+      setUser(prev => ({
+        ...prev,
+        totalStudyHours: stats.totalStudyHours,
+        streakDays: stats.streakDays,
+        completedTasksThisWeek: stats.completedTasksThisWeek,
+        onTimeRate: stats.onTimeRate,
+      }));
+    } catch {
+      setUser(prev => ({
+        ...prev,
+        totalStudyHours: Number((prev.totalStudyHours + minutesSpent / 60).toFixed(1)),
+      }));
+    }
   };
 
   const handleReschedule = async () => {
     try {
       const updated = await studySessionService.reschedule();
-      if (updated && updated.length > 0) {
-        setSessions(updated);
-      }
-      showAlert('Urutan prioritas belajar telah diperbarui dari model AI backend.', 'AI Adaptive Rescheduling Aktif', 'info');
-    } catch {
-      showAlert('Urutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.', 'AI Adaptive Rescheduling Aktif', 'info');
+      setSessions(updated || []);
+      showAlert('Urutan prioritas belajar telah diperbarui dari model AI backend.', 'AI Adaptive Rescheduling Aktif', 'success');
+    } catch (err: any) {
+      showAlert(err.message || 'Tidak ada sesi yang perlu disusun ulang saat ini.', 'Adaptive Rescheduling', 'info');
     }
   };
 
-  const handleMarkAllNotificationsRead = () => {
+  const handleMarkAllNotificationsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    await notificationService.markAllAsRead();
   };
 
-  // ==========================================
-  // SUBJECT CRUD HANDLERS
-  // ==========================================
   const handleAddSubject = async (newSub: Omit<Subject, 'id' | 'totalTasks'>) => {
     try {
       const created = await subjectService.createSubject(newSub);
       setSubjects(prev => [...prev, created]);
       showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database! ✨`, 'Mata Pelajaran Ditambahkan', 'success');
-    } catch {
-      const id = `sub-${Date.now()}`;
-      const created: Subject = { ...newSub, id, totalTasks: 0 };
-      setSubjects(prev => [...prev, created]);
-      showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan! ✨`, 'Mata Pelajaran Ditambahkan', 'success');
+      refreshBackendData();
+    } catch (err: any) {
+      showAlert(err.message || 'Gagal menambahkan mata pelajaran ke server.', 'Gagal Tambah Mapel', 'warning');
     }
   };
 
   const handleUpdateSubject = async (id: string, updated: Partial<Subject>) => {
-    const oldSubject = subjects.find(s => s.id === id);
-    setSubjects(prev => prev.map(s => (s.id === id ? { ...s, ...updated } : s)));
-
-    if (oldSubject) {
-      const oldName = oldSubject.name;
-      const newName = updated.name || oldName;
-      const newColor = updated.color || oldSubject.color;
-
-      setTasks(prev => prev.map(t => (t.subject === oldName ? { ...t, subject: newName, subjectColor: newColor } : t)));
-      setSchedule(prev => prev.map(sch => (sch.subjectName === oldName ? { ...sch, subjectName: newName, subjectColor: newColor, teacher: updated.teacher || sch.teacher } : sch)));
-    }
-
     try {
-      await subjectService.updateSubject(id, updated);
-    } catch (e) {
-      console.warn('Gagal update subject di backend:', e);
+      const saved = await subjectService.updateSubject(id, updated);
+      setSubjects(prev => prev.map(s => (s.id === id ? { ...s, ...saved } : s)));
+      refreshBackendData();
+    } catch (e: any) {
+      showAlert(e.message || 'Gagal memperbarui mata pelajaran di server.', 'Gagal Update Mapel', 'warning');
     }
   };
 
   const handleDeleteSubject = async (id: string) => {
     const subjectToDelete = subjects.find(s => s.id === id);
-    setSubjects(prev => prev.filter(s => s.id !== id));
     try {
       await subjectService.deleteSubject(id);
-    } catch (e) {
-      console.warn('Gagal menghapus subject di backend:', e);
-    }
-    if (subjectToDelete) {
-      showAlert(`Mata pelajaran "${subjectToDelete.name}" telah dihapus.`, 'Mata Pelajaran Dihapus', 'info');
+      setSubjects(prev => prev.filter(s => s.id !== id));
+      if (subjectToDelete) {
+        showAlert(`Mata pelajaran "${subjectToDelete.name}" telah dihapus.`, 'Mata Pelajaran Dihapus', 'info');
+      }
+      refreshBackendData();
+    } catch (e: any) {
+      showAlert(e.message || 'Gagal menghapus mata pelajaran dari server.', 'Gagal Hapus Mapel', 'warning');
     }
   };
 
-  // ==========================================
-  // SCHEDULE HANDLERS
-  // ==========================================
   const handleAddScheduleItem = async (newItem: Omit<ScheduleItem, 'id'>) => {
     try {
       const created = await scheduleService.createSchedule(newItem);
@@ -313,19 +313,17 @@ export function App() {
         showAlert('Terdeteksi konflik jadwal! Jam pelajaran bentrok dengan jadwal lain pada hari yang sama.', 'Konflik Jadwal Pelajaran', 'warning');
         return;
       }
-      const id = `sch-${Date.now()}`;
-      const created: ScheduleItem = { ...newItem, id };
-      setSchedule(prev => [...prev, created]);
-      showAlert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal hari ${created.day}! 📅`, 'Jadwal Ditambahkan', 'success');
+      showAlert(err.message || 'Gagal menyimpan jadwal ke database backend.', 'Gagal Tambah Jadwal', 'warning');
     }
   };
 
   const handleDeleteScheduleItem = async (id: string) => {
-    setSchedule(prev => prev.filter(s => s.id !== id));
     try {
       await scheduleService.deleteSchedule(id);
-    } catch (e) {
-      console.warn('Gagal menghapus jadwal di backend:', e);
+      setSchedule(prev => prev.filter(s => s.id !== id));
+      showAlert('Jadwal pelajaran berhasil dihapus.', 'Jadwal Dihapus', 'info');
+    } catch (e: any) {
+      showAlert(e.message || 'Gagal menghapus jadwal dari database.', 'Gagal Hapus Jadwal', 'warning');
     }
   };
 
@@ -337,6 +335,23 @@ export function App() {
   const handleLogout = () => {
     authService.logout();
     setIsLoggedIn(false);
+    setUser({
+      name: '',
+      grade: 'SMA - Fase F',
+      school: 'Stoodify',
+      email: '',
+      streakDays: 0,
+      totalStudyHours: 0,
+      completedTasksThisWeek: 0,
+      onTimeRate: 0,
+      isPro: false,
+    });
+    setTasks([]);
+    setSubjects([]);
+    setSchedule([]);
+    setSessions([]);
+    setNotifications([]);
+    setPredictions([]);
   };
 
   return (
@@ -361,6 +376,7 @@ export function App() {
               isOpen={isChatbotOpen}
               onToggle={() => setIsChatbotOpen((prev) => !prev)}
               onClose={() => setIsChatbotOpen(false)}
+              user={user}
               tasks={tasks}
               sessions={sessions}
               onReschedulePrompt={handleReschedule}
@@ -383,7 +399,8 @@ export function App() {
                 user={user}
                 tasks={tasks}
                 sessions={sessions}
-                predictions={mockPredictions}
+                predictions={predictions}
+                isLoading={isLoadingData}
                 onOpenAddTask={() => setIsAddTaskOpen(true)}
                 onOpenFocusTimer={handleOpenFocusTimer}
                 onOpenPredictions={() => setIsPredictionsOpen(true)}
@@ -400,6 +417,7 @@ export function App() {
               <TasksView
                 tasks={tasks}
                 subjects={subjects}
+                isLoading={isLoadingData}
                 onSelectTask={setSelectedTask}
                 onToggleComplete={handleToggleTaskComplete}
                 onOpenAddTask={() => setIsAddTaskOpen(true)}
@@ -413,6 +431,7 @@ export function App() {
                 sessions={sessions}
                 tasks={tasks}
                 subjects={subjects}
+                isLoading={isLoadingData}
                 onOpenFocusTimer={handleOpenFocusTimer}
                 onOpenAddSchedule={handleOpenAddSchedule}
                 onDeleteScheduleItem={handleDeleteScheduleItem}
@@ -424,6 +443,7 @@ export function App() {
               <AIPlanView
                 sessions={sessions}
                 tasks={tasks}
+                isLoading={isLoadingData}
                 onOpenFocusTimer={handleOpenFocusTimer}
                 onReschedulePrompt={handleReschedule}
                 onOpenChatbot={() => setIsChatbotOpen(true)}
@@ -473,7 +493,15 @@ export function App() {
       <MaterialPredictionModal
         isOpen={isPredictionsOpen}
         onClose={() => setIsPredictionsOpen(false)}
-        predictions={mockPredictions}
+        predictions={predictions}
+        subjects={subjects}
+        onGenerateNew={async (subId) => {
+          const sub = subjects.find(s => s.id === subId);
+          const newPred = await predictionService.generatePrediction(subId, sub);
+          if (newPred) {
+            setPredictions(prev => [newPred, ...prev.filter(p => p.id !== newPred.id)]);
+          }
+        }}
       />
 
       <NotificationsModal
@@ -489,7 +517,6 @@ export function App() {
         onUpgradeSuccess={() => setUser(prev => ({ ...prev, isPro: true }))}
       />
 
-      {/* Subjects & Schedule Management Modals */}
       <ManageSubjectsModal
         isOpen={isManageSubjectsOpen}
         onClose={() => setIsManageSubjectsOpen(false)}

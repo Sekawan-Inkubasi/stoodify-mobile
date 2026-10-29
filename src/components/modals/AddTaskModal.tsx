@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, 
   Plus, 
@@ -30,11 +30,16 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   onOpenManageSubjects,
 }) => {
   const { showAlert } = useDialog();
-  if (!isOpen) return null;
 
   // Form states
   const [title, setTitle] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0]?.name || 'Matematika Tingkat Lanjut');
+  const [selectedSubject, setSelectedSubject] = useState(subjects[0]?.name || '');
+
+  useEffect(() => {
+    if ((!selectedSubject || !subjects.some(s => s.name === selectedSubject)) && subjects.length > 0) {
+      setSelectedSubject(subjects[0].name);
+    }
+  }, [subjects, selectedSubject]);
   const [difficulty, setDifficulty] = useState<'Mudah' | 'Sedang' | 'Sulit'>('Sedang');
   const [taskType, setTaskType] = useState<'Individu' | 'Kelompok' | 'Praktikum' | 'Proyek'>('Individu');
   const [notes, setNotes] = useState('');
@@ -48,6 +53,8 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   const [attachment, setAttachment] = useState<TaskAttachment | null>(null);
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!isOpen) return null;
 
   const currentSubjectObj = subjects.find(s => s.name === selectedSubject);
 

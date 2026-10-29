@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Brain, 
@@ -6,27 +6,57 @@ import {
   ThumbsUp, 
   ThumbsDown, 
   Lightbulb, 
-  Info
+  Info,
+  Plus,
+  Loader2
 } from 'lucide-react';
-import { MaterialPrediction } from '../../types';
+import { MaterialPrediction, Subject } from '../../types';
+import { predictionService } from '../../services/predictionService';
 
 interface MaterialPredictionModalProps {
   isOpen: boolean;
   onClose: () => void;
   predictions: MaterialPrediction[];
+  subjects?: Subject[];
+  onGenerateNew?: (subjectId: string) => Promise<void>;
 }
 
 export const MaterialPredictionModal: React.FC<MaterialPredictionModalProps> = ({
   isOpen,
   onClose,
   predictions: initialPredictions,
+  subjects = [],
+  onGenerateNew,
 }) => {
+  const [predictions, setPredictions] = useState<MaterialPrediction[]>(initialPredictions);
+  const [selectedSubId, setSelectedSubId] = useState<string>(subjects[0]?.id || '');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    setPredictions(initialPredictions);
+  }, [initialPredictions]);
+
+  useEffect(() => {
+    if (!selectedSubId && subjects.length > 0) {
+      setSelectedSubId(String(subjects[0].id));
+    }
+  }, [subjects, selectedSubId]);
+
   if (!isOpen) return null;
 
-  const [predictions, setPredictions] = useState<MaterialPrediction[]>(initialPredictions);
-
-  const handleFeedback = (id: string, feedback: 'accurate' | 'inaccurate') => {
+  const handleFeedback = async (id: string, feedback: 'accurate' | 'inaccurate') => {
     setPredictions(prev => prev.map(p => p.id === id ? { ...p, userFeedback: feedback } : p));
+    await predictionService.submitFeedback(id, feedback);
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedSubId || !onGenerateNew) return;
+    setIsGenerating(true);
+    try {
+      await onGenerateNew(selectedSubId);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -63,9 +93,46 @@ export const MaterialPredictionModal: React.FC<MaterialPredictionModalProps> = (
             </p>
           </div>
 
-          {/* Cards for each subject prediction */}
+          {subjects.length > 0 && onGenerateNew && (
+            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 flex items-center gap-2">
+              <select
+                value={selectedSubId}
+                onChange={(e) => setSelectedSubId(e.target.value)}
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 font-medium focus:outline-none"
+              >
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={isGenerating || !selectedSubId}
+                className="bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 disabled:opacity-60"
+              >
+                {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                <span>Analisis AI</span>
+              </button>
+            </div>
+          )}
+
           <div className="space-y-3.5">
-            {predictions.map((pred) => (
+            {predictions.length === 0 ? (
+              <div className="py-10 text-center space-y-2">
+                <div className="w-12 h-12 bg-blue-50 text-[#0062FF] rounded-full flex items-center justify-center mx-auto">
+                  <Brain className="w-6 h-6" />
+                </div>
+                <h3 className="text-xs font-bold text-slate-800">Belum Ada Prediksi Materi</h3>
+                <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                  {subjects.length > 0
+                    ? 'Pilih mata pelajaran di atas lalu tekan Analisis AI untuk memprediksi materi silabus berikutnya.'
+                    : 'Tambahkan mata pelajaran terlebih dahulu untuk mengaktifkan fitur prediksi materi AI.'}
+                </p>
+              </div>
+            ) : (
+              predictions.map((pred) => (
               <div
                 key={pred.id}
                 className="bg-white rounded-3xl p-4 shadow-[0_4px_16px_rgba(20,40,90,0.04)] border border-slate-100 space-y-3 relative overflow-hidden"
@@ -156,8 +223,9 @@ export const MaterialPredictionModal: React.FC<MaterialPredictionModalProps> = (
                 </div>
 
               </div>
-            ))}
-          </div>
+            ))
+          )}
+        </div>
 
         </div>
 

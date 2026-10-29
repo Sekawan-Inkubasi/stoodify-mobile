@@ -5,3 +5,5 @@ export * from './scheduleService';
 export * from './subjectService';
 export * from './studySessionService';
 export * from './statisticsService';
+export * from './notificationService';
+export * from './predictionService';

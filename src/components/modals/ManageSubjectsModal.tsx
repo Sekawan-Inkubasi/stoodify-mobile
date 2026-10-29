@@ -48,7 +48,6 @@ export const ManageSubjectsModal: React.FC<ManageSubjectsModalProps> = ({
   onDeleteSubject,
 }) => {
   const { showConfirm } = useDialog();
-  if (!isOpen) return null;
 
   // View state: 'list' | 'add' | 'edit'
   const [viewState, setViewState] = useState<'list' | 'add' | 'edit'>('list');
@@ -59,6 +58,8 @@ export const ManageSubjectsModal: React.FC<ManageSubjectsModalProps> = ({
   const [formTeacher, setFormTeacher] = useState('');
   const [formColor, setFormColor] = useState(COLOR_PALETTE[0]);
   const [formDifficulty, setFormDifficulty] = useState<'Mudah' | 'Sedang' | 'Sulit'>('Sedang');
+
+  if (!isOpen) return null;
 
   const startAdd = () => {
     setFormName('');

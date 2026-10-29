@@ -18,6 +18,7 @@ interface CalendarViewProps {
   sessions: AISession[];
   tasks: Task[];
   subjects: Subject[];
+  isLoading?: boolean;
   onOpenFocusTimer: (task?: Task) => void;
   onOpenAddSchedule: (day: 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat') => void;
   onDeleteScheduleItem: (id: string) => void;
@@ -29,6 +30,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   sessions,
   tasks,
   subjects,
+  isLoading,
   onOpenFocusTimer,
   onOpenAddSchedule,
   onDeleteScheduleItem,
@@ -214,31 +216,69 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </h3>
           </div>
 
-          <div className="bg-white rounded-[26px] p-4 shadow-[0_4px_20px_rgba(20,40,90,0.05)] border border-white space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#0062FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
-                Prioritas #1 &bull; Hari Ini (45 Min)
-              </span>
-              <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                Urutan Teratas
-              </span>
+          {sessions.length > 0 ? (
+            <div className="bg-white rounded-[26px] p-4 shadow-[0_4px_20px_rgba(20,40,90,0.05)] border border-white space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-[#0062FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  {sessions[0].timeSlot || 'Prioritas #1'} &bull; {sessions[0].sessionDate}
+                </span>
+                <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                  Urutan Teratas
+                </span>
+              </div>
+
+              <h4 className="text-xs font-bold text-slate-900 pt-1">
+                {sessions[0].taskTitle}
+              </h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
+                {sessions[0].reason}
+              </p>
+
+              <button
+                onClick={() => {
+                  const targetTask = tasks.find(t => t.id === sessions[0].taskId);
+                  onOpenFocusTimer(targetTask);
+                }}
+                className="mt-2 w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-2.5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Mulai Sesi Fokus Ini</span>
+              </button>
             </div>
+          ) : tasks.length > 0 ? (
+            <div className="bg-white rounded-[26px] p-4 shadow-[0_4px_20px_rgba(20,40,90,0.05)] border border-white space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-[#0062FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  Prioritas Utama &bull; {tasks[0].deadlineFormatted}
+                </span>
+                <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  {tasks[0].subject}
+                </span>
+              </div>
 
-            <h4 className="text-xs font-bold text-slate-900 pt-1">
-              Fokus Kimia: Laporan Praktikum Titrasi
-            </h4>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
-              Tugas ini ditempatkan pada urutan teratas berdasarkan urgensi tenggat dan tingkat kesulitan.
-            </p>
+              <h4 className="text-xs font-bold text-slate-900 pt-1">
+                {tasks[0].title}
+              </h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
+                {tasks[0].aiReasoning || 'Tugas diprioritaskan berdasarkan batas waktu penyelesaian.'}
+              </p>
 
-            <button
-              onClick={() => onOpenFocusTimer()}
-              className="mt-2 w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-2.5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>Mulai Sesi Fokus Ini</span>
-            </button>
-          </div>
+              <button
+                onClick={() => onOpenFocusTimer(tasks[0])}
+                className="mt-2 w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-2.5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Mulai Sesi Fokus Ini</span>
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white rounded-[26px] p-5 shadow-[0_4px_20px_rgba(20,40,90,0.04)] border border-white text-center space-y-1.5">
+              <p className="text-xs font-bold text-slate-700">Belum Ada Sesi AI</p>
+              <p className="text-[11px] text-slate-400">
+                Tambahkan tugas sekolah untuk mendapatkan rekomendasi urutan belajar harian.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

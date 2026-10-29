@@ -75,11 +75,64 @@ export class ApiError extends Error {
   }
 }
 
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = tokenStorage.getRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (!res.ok) {
+        tokenStorage.clearTokens();
+        return null;
+      }
+
+      const json = await res.json();
+      const newAccess = json.data?.access_token || json.access_token;
+      const newRefresh = json.data?.refresh_token || json.refresh_token;
+
+      if (newAccess) {
+        tokenStorage.setTokens(newAccess, newRefresh);
+        return newAccess;
+      }
+      return null;
+    } catch {
+      tokenStorage.clearTokens();
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  let normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const collectionRoutes = [
+    '/subjects',
+    '/schedules',
+    '/tasks',
+    '/activities',
+    '/notifications',
+    '/study-sessions',
+  ];
+  if (collectionRoutes.includes(normalizedEndpoint)) {
+    normalizedEndpoint = `${normalizedEndpoint}/`;
+  }
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const headers = new Headers(options.headers || {});
 
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
@@ -96,32 +149,13 @@ export async function apiRequest<T = any>(
     headers,
   });
 
-  // Handle 401 Unauthorized -> Refresh Token
   if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
-    const refreshToken = tokenStorage.getRefreshToken();
-    if (refreshToken) {
-      try {
-        const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh_token: refreshToken }),
-        });
-
-        if (refreshRes.ok) {
-          const refreshJson = await refreshRes.json();
-          const newAccess = refreshJson.data?.access_token || refreshJson.access_token;
-          const newRefresh = refreshJson.data?.refresh_token || refreshJson.refresh_token;
-          if (newAccess) {
-            tokenStorage.setTokens(newAccess, newRefresh);
-            headers.set('Authorization', `Bearer ${newAccess}`);
-            const retryRes = await fetch(url, { ...options, headers });
-            const retryData = await retryRes.json();
-            return retryData.data !== undefined ? retryData.data : retryData;
-          }
-        }
-      } catch (err) {
-        tokenStorage.clearTokens();
-      }
+    const newAccess = await refreshAccessToken();
+    if (newAccess) {
+      headers.set('Authorization', `Bearer ${newAccess}`);
+      const retryRes = await fetch(url, { ...options, headers });
+      const retryData = await retryRes.json();
+      return retryData.data !== undefined ? retryData.data : retryData;
     }
   }
 

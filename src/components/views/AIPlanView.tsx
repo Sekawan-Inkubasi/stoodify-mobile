@@ -20,6 +20,7 @@ import { AISession, Task } from '../../types';
 interface AIPlanViewProps {
   sessions: AISession[];
   tasks: Task[];
+  isLoading?: boolean;
   onOpenFocusTimer: (task?: Task) => void;
   onReschedulePrompt: () => void;
   onOpenChatbot?: () => void;
@@ -28,6 +29,7 @@ interface AIPlanViewProps {
 export const AIPlanView: React.FC<AIPlanViewProps> = ({
   sessions,
   tasks,
+  isLoading,
   onOpenFocusTimer,
   onReschedulePrompt,
   onOpenChatbot,
@@ -128,7 +130,9 @@ export const AIPlanView: React.FC<AIPlanViewProps> = ({
           </div>
           <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
             <p className="text-[10px] font-semibold text-slate-500">Rata-rata/Hari</p>
-            <p className="text-base font-bold text-[#0062FF] mt-0.5">45 Menit</p>
+            <p className="text-base font-bold text-[#0062FF] mt-0.5">
+              {sessions.length > 0 ? `${Math.round(sessions.reduce((acc, s) => acc + s.durationMinutes, 0) / sessions.length)}m` : '0m'}
+            </p>
           </div>
         </div>
 
@@ -173,7 +177,22 @@ export const AIPlanView: React.FC<AIPlanViewProps> = ({
 
       {/* 5. LIST OF AI STUDY SESSIONS */}
       <div className="space-y-3">
-        {filteredSessions.map((session, idx) => {
+        {filteredSessions.length === 0 ? (
+          <div className="bg-white rounded-3xl p-8 text-center space-y-2 shadow-[0_4px_16px_rgba(20,40,90,0.04)] border border-white">
+            <div className="w-12 h-12 bg-blue-50 text-[#0062FF] rounded-full flex items-center justify-center mx-auto">
+              <BrainCircuit className="w-6 h-6" />
+            </div>
+            <h3 className="text-xs font-bold text-slate-900">
+              {sessions.length === 0 ? 'Belum Ada Sesi Belajar Terjadwal' : 'Tidak Ada Sesi di Filter Ini'}
+            </h3>
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto leading-relaxed">
+              {sessions.length === 0
+                ? 'Urutan prioritas belajar AI akan otomatis disusun setelah tugas atau jadwal mata pelajaran ditambahkan.'
+                : 'Ubah tab filter untuk melihat sesi belajar lainnya.'}
+            </p>
+          </div>
+        ) : (
+          filteredSessions.map((session, idx) => {
           const relatedTask = tasks.find(t => t.id === session.taskId);
 
           return (
@@ -238,7 +257,7 @@ export const AIPlanView: React.FC<AIPlanViewProps> = ({
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
       {/* 6. BOTTOM ADAPTIVE RESCHEDULING BANNER */}

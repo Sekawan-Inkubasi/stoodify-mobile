@@ -19,8 +19,6 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
   onAddScheduleItem,
   onOpenManageSubjects,
 }) => {
-  if (!isOpen) return null;
-
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'] as const;
   const [day, setDay] = useState<'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat'>(defaultDay);
   const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id || '');
@@ -36,6 +34,8 @@ export const AddScheduleModal: React.FC<AddScheduleModalProps> = ({
       setTeacher(activeSubject.teacher || '');
     }
   }, [selectedSubjectId, activeSubject]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

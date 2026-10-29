@@ -52,28 +52,40 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
         {/* List */}
         <div className="p-6 overflow-y-auto space-y-2.5 text-xs">
-          {notifications.map((notif) => (
-            <div
-              key={notif.id}
-              className={`p-4 rounded-3xl border transition-all ${
-                notif.isRead 
-                  ? 'bg-white border-slate-100 shadow-xs' 
-                  : 'bg-blue-50/60 border-blue-200/70 shadow-sm'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h4 className="text-xs font-semibold text-slate-900 leading-snug">
-                  {notif.title}
-                </h4>
-                <span className="text-[10px] text-slate-400 font-normal whitespace-nowrap">
-                  {notif.timeAgo}
-                </span>
+          {notifications.length === 0 ? (
+            <div className="py-12 text-center space-y-2">
+              <div className="w-12 h-12 bg-blue-50 text-[#0062FF] rounded-full flex items-center justify-center mx-auto">
+                <Bell className="w-6 h-6" />
               </div>
-              <p className="text-[11px] text-slate-600 mt-1 leading-relaxed font-normal">
-                {notif.message}
+              <h3 className="text-xs font-bold text-slate-800">Belum Ada Notifikasi</h3>
+              <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                Pengingat tugas mendesak dan notifikasi belajar akan otomatis muncul di sini.
               </p>
             </div>
-          ))}
+          ) : (
+            notifications.map((notif) => (
+              <div
+                key={notif.id}
+                className={`p-4 rounded-3xl border transition-all ${
+                  notif.isRead 
+                    ? 'bg-white border-slate-100 shadow-xs' 
+                    : 'bg-blue-50/60 border-blue-200/70 shadow-sm'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="text-xs font-semibold text-slate-900 leading-snug">
+                    {notif.title}
+                  </h4>
+                  <span className="text-[10px] text-slate-400 font-normal whitespace-nowrap">
+                    {notif.timeAgo}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1 leading-relaxed font-normal">
+                  {notif.message}
+                </p>
+              </div>
+            ))
+          )}
         </div>
 
       </div>

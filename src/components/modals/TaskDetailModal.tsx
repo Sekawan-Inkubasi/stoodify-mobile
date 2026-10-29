@@ -29,11 +29,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onDeleteTask,
 }) => {
   const { showConfirm } = useDialog();
-  if (!isOpen || !task) return null;
 
-  const isCompleted = task.status === 'completed';
-
-  // Sesi Fokus duration selection states
   const [selectedDuration, setSelectedDuration] = useState<number>(45);
   const [isCustomDuration, setIsCustomDuration] = useState<boolean>(false);
   const [customInput, setCustomInput] = useState<string>('');
@@ -44,7 +40,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       setIsCustomDuration(false);
       setCustomInput('');
     }
-  }, [task.id]);
+  }, [task?.id]);
+
+  if (!isOpen || !task) return null;
+
+  const isCompleted = task.status === 'completed';
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm backdrop-smooth flex items-end sm:items-center justify-center p-0 sm:p-4">

@@ -15,7 +15,7 @@ import {
   MessageSquare,
   BookOpen
 } from 'lucide-react';
-import { Task, AISession } from '../../types';
+import { Task, AISession, UserProfile } from '../../types';
 import { useDialog } from '../../context/DialogContext';
 
 export interface ChatMessage {
@@ -31,6 +31,7 @@ interface ChatbotSlideDrawerProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
+  user?: UserProfile;
   tasks: Task[];
   sessions: AISession[];
   onReschedulePrompt: () => void;
@@ -41,17 +42,19 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
   isOpen,
   onToggle,
   onClose,
+  user,
   tasks,
   sessions,
   onReschedulePrompt,
   onOpenFocusTimer,
 }) => {
   const { showAlert } = useDialog();
+  const studentName = user?.name ? user.name.split(' ')[0] : 'Siswa';
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome-1',
       sender: 'ai',
-      text: 'Halo Naufal! 👋 Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan urutan prioritas belajarmu hari ini?',
+      text: `Halo ${studentName}! 👋 Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan urutan prioritas belajarmu hari ini?`,
       time: 'Baru saja',
     },
   ]);
@@ -180,27 +183,33 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
 
     setTimeout(() => {
       const lower = text.toLowerCase();
-      let replyText = 'Baik Naufal! Saya sudah menganalisis permintaanmu berdasarkan data belajar terkini di Stoodify.';
+      let replyText = `Baik ${studentName}! Saya telah menganalisis permintaanmu berdasarkan data belajar terkini di Stoodify.`;
       let actionType: 'reschedule' | 'focus_timer' | 'view_tasks' | undefined;
       let actionLabel: string | undefined;
 
       if (lower.includes('susun') || lower.includes('jadwal') || lower.includes('les') || lower.includes('reschedule')) {
-        replyText = '⚡ **AI Adaptive Rescheduler Aktif!**\n\nUrutan prioritas belajarmu telah disesuaikan:\n• **Prioritas #1 (Hari ini):** Laporan Praktikum Kimia (45 Menit Fokus)\n• **Prioritas #2 (Besok):** Latihan 10 Soal Vektor Dimensi Tiga\n\nKlik tombol di bawah untuk langsung menerapkan rekomendasi urutan ini.';
+        if (sessions.length > 0) {
+          const listStr = sessions.slice(0, 2).map((s, i) => `• **Prioritas #${i + 1}:** ${s.taskTitle} (${s.durationMinutes} Menit Fokus)`).join('\n');
+          replyText = `⚡ **AI Adaptive Rescheduler Aktif!**\n\nUrutan prioritas belajarmu saat ini:\n${listStr}\n\nKlik tombol di bawah untuk menyusun ulang antrean prioritas belajar dari server AI.`;
+        } else {
+          replyText = '⚡ **AI Adaptive Rescheduler Aktif!**\n\nBelum ada sesi tugas aktif yang terjadwal. Tambahkan tugas terlebih dahulu agar AI dapat menyusun urutan belajarmu.';
+        }
         actionType = 'reschedule';
-        actionLabel = '⚡ Terapkan Urutan Prioritas Baru';
-      } else if (lower.includes('kimia') || lower.includes('titrasi')) {
-        replyText = '🔮 **Prediksi Materi & Bantuan PR Kimia:**\n\n1. **Titik Ekivalen:** Terjadi saat mol asam = mol basa ($n_a \\times M_a \\times V_a = n_b \\times M_b \\times V_b$).\n2. **Indikator PP:** Sangat cocok untuk titrasi Asam Kuat - Basa Kuat (rentang pH 8.3 - 10.0).\n3. Peluang keluar di lembar penilaian guru: **85% probabilitas tinggi**!';
-        actionType = 'focus_timer';
-        actionLabel = '⏱️ Mulai Mode Fokus Kimia (45 Min)';
-      } else if (lower.includes('ringkasan') || lower.includes('beban') || lower.includes('progres')) {
+        actionLabel = '⚡ Jalankan Adaptive Rescheduling';
+      } else if (lower.includes('ringkasan') || lower.includes('beban') || lower.includes('progres') || lower.includes('tugas')) {
         const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
-        replyText = `📊 **Ringkasan Beban Belajar Siswa:**\n\n• Sisa Tugas Aktif: **${pendingCount} tugas**\n• Prioritas Tertinggi: **Kimia & Matematika**\n• Streak Aktif: **🔥 5 Hari Berturut-turut**\n• Estimasi total waktu yang dibutuhkan: **~2.5 Jam** terbagi dalam 3 sesi malam. Beban belajarmu masih dalam kategori **Aman & Terkendali**! ✨`;
-      } else if (lower.includes('fokus') || lower.includes('tips') || lower.includes('distraksi')) {
+        const streak = user?.streakDays || 0;
+        const hours = user?.totalStudyHours || 0;
+        replyText = `📊 **Ringkasan Beban Belajar Siswa:**\n\n• Sisa Tugas Aktif: **${pendingCount} tugas**\n• Streak Aktif: **🔥 ${streak} Hari**\n• Total Waktu Fokus: **⏱️ ${hours} Jam**\n\n${pendingCount > 0 ? 'Fokus tuntaskan tugas teratas untuk mempertahankan ritme belajarmu!' : 'Semua tugas saat ini tuntas. Waktu yang tepat untuk istirahat atau cicil materi baru!'}`;
+      } else if (lower.includes('fokus') || lower.includes('tips') || lower.includes('distraksi') || lower.includes('timer')) {
         replyText = '💡 **Tips Zen Focus Mode ala Stoodify:**\n\n1. Jauhkan ponsel dari jangkauan pandangan mata.\n2. Siapkan hanya 1 botol air minum dan catatan tugas.\n3. Nyalakan timer fokus 45 menit lalu istirahat 10 menit (Pomodoro Adaptif).\n\nMau mulai sesi fokus sekarang?';
         actionType = 'focus_timer';
         actionLabel = '⏱️ Buka Zen Focus Timer';
       } else {
-        replyText = `Tentu! Sebagai asisten belajar AI Stoodify, saya siap membantu membedah tugas **${tasks[0]?.title || 'sekolah'}**, merangkum materi pelajaran, atau mengoptimalkan jam istirahatmu. Ada topik khusus yang ingin kamu bahas?`;
+        const topTaskTitle = tasks.find(t => t.status !== 'completed')?.title;
+        replyText = topTaskTitle
+          ? `Tentu! Sebagai asisten belajar AI Stoodify, saya siap membantu membedah tugas **${topTaskTitle}**, merangkum materi pelajaran, atau mengoptimalkan jam belajarmu. Ada topik khusus yang ingin kamu bahas?`
+          : `Tentu! Sebagai asisten belajar AI Stoodify, saya siap membantu menjawab materi pelajaran atau merencanakan jadwal belajarmu. Ada yang ingin kamu diskusikan?`;
       }
 
       const botMsg: ChatMessage = {
@@ -221,7 +230,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
     if (msg.actionType === 'reschedule') {
       onReschedulePrompt();
     } else if (msg.actionType === 'focus_timer') {
-      const targetTask = tasks.find((t) => t.subject.toLowerCase().includes('kimia')) || tasks[0];
+      const targetTask = tasks.find((t) => t.status !== 'completed') || tasks[0];
       onOpenFocusTimer(targetTask);
     }
   };
@@ -231,7 +240,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
     if (!isListening) {
       setTimeout(() => {
         setIsListening(false);
-        handleSendMessage('Jelaskan rumus Titrasi Kimia titik ekivalen secara ringkas.');
+        handleSendMessage('Bagaimana tips menyusun prioritas tugas belajar hari ini?');
       }, 2400);
     }
   };

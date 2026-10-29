@@ -1,16 +1,31 @@
 import { apiRequest } from "./apiClient";
-import { AISession } from "../types";
+import { AISession, Task } from "../types";
 
-export function adaptBackendSession(raw: any): AISession {
+export function adaptBackendSession(
+  raw: any,
+  tasksMap?: Map<string | number, Task>,
+): AISession {
+  const relatedTask = tasksMap
+    ? tasksMap.get(raw.task_id) || tasksMap.get(String(raw.task_id)) || tasksMap.get(Number(raw.task_id))
+    : undefined;
+
   const taskTitle =
-    raw.task?.title || raw.task_title || raw.title || "Sesi Belajar Terjadwal";
+    raw.task?.title ||
+    raw.task_title ||
+    relatedTask?.title ||
+    raw.title ||
+    "Sesi Belajar Terjadwal";
   const subjectName =
     raw.task?.subject?.name ||
     raw.task?.subject_name ||
+    relatedTask?.subject ||
     raw.subject_name ||
     "Umum";
   const subjectColor =
-    raw.task?.subject?.color || raw.task?.subject_color || "#2563EB";
+    raw.task?.subject?.color ||
+    raw.task?.subject_color ||
+    relatedTask?.subjectColor ||
+    "#2563EB";
   const duration = raw.duration || raw.duration_minutes || 45;
   const timeSlot = raw.start_time
     ? `${raw.start_time.slice(0, 5)} (${duration}m)`
@@ -44,7 +59,7 @@ export function adaptBackendSession(raw: any): AISession {
 }
 
 export const studySessionService = {
-  async getRecommendations(): Promise<AISession[]> {
+  async getRecommendations(tasks?: Task[]): Promise<AISession[]> {
     try {
       let res = await apiRequest("/ai/schedule-recommendations", {
         method: "GET",
@@ -71,7 +86,11 @@ export const studySessionService = {
         }
       }
 
-      return (list || []).map(adaptBackendSession);
+      const tasksMap = tasks
+        ? new Map(tasks.map((t) => [t.id, t]))
+        : undefined;
+
+      return (list || []).map((item: any) => adaptBackendSession(item, tasksMap));
     } catch (err) {
       console.warn("Gagal memuat rekomendasi sesi AI dari API:", err);
       return [];

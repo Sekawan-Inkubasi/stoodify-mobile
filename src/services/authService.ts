@@ -31,14 +31,14 @@ export const authService = {
 
     const user = res.user || {};
     return {
-      id: user.id || "usr-1",
-      name: user.name || "Siswa Stoodify",
+      id: user.id ? String(user.id) : "",
+      name: user.name || "Siswa",
       email: user.email || email,
-      grade: user.grade || "SMA Kelas 11 - Fase F",
-      school: user.school || "SMAN 1 Teladan",
-      streakDays: 5,
-      totalStudyHours: 14.5,
-      completedTasksThisWeek: 8,
+      grade: user.grade || "SMA - Fase F",
+      school: user.school || "Stoodify",
+      streakDays: 0,
+      totalStudyHours: 0,
+      completedTasksThisWeek: 0,
       isPro: false,
     };
   },
@@ -85,8 +85,8 @@ export const authService = {
           email: demoEmail,
           password: demoPassword,
           confirmPassword: demoPassword,
-          grade: "SMA Kelas 11 - Fase F",
-          school: "SMAN 1 Teladan",
+          grade: "SMA - Fase F",
+          school: "Stoodify",
         });
       } catch (err) {
         console.error("Gagal inisialisasi akun demo:", err);
@@ -100,14 +100,14 @@ export const authService = {
     try {
       const res = await apiRequest("/auth/me", { method: "GET" });
       return {
-        id: res.id || "usr-me",
-        name: res.name || "Siswa Stoodify",
+        id: res.id ? String(res.id) : "",
+        name: res.name || "Siswa",
         email: res.email || "",
-        grade: res.grade || "SMA Kelas 11 - Fase F",
-        school: res.school || "SMAN 1 Teladan",
-        streakDays: 5,
-        totalStudyHours: 14.5,
-        completedTasksThisWeek: 8,
+        grade: res.grade || "SMA - Fase F",
+        school: res.school || "Stoodify",
+        streakDays: 0,
+        totalStudyHours: 0,
+        completedTasksThisWeek: 0,
         isPro: false,
       };
     } catch {

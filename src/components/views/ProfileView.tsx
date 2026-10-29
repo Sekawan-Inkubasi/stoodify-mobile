@@ -59,13 +59,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="text-sm font-bold text-slate-900 truncate">{user.name}</h3>
+              <h3 className="text-sm font-bold text-slate-900 truncate">{user.name || 'Siswa Stoodify'}</h3>
               <span className="text-[9px] font-semibold bg-blue-50 text-[#0062FF] px-2 py-0.5 rounded-full">
-                Fase F
+                {user.grade || 'Fase F'}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-0.5">{user.grade}</p>
-            <p className="text-[10px] text-slate-400 truncate">{user.school}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-0.5">{user.grade || 'SMA'}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user.school || 'Stoodify'}</p>
           </div>
         </div>
 
@@ -113,7 +113,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-1">
             <CheckCircle className="w-4 h-4" />
           </div>
-          <span className="text-base font-bold text-slate-900 block leading-tight">92%</span>
+          <span className="text-base font-bold text-slate-900 block leading-tight">
+            {typeof user.onTimeRate === 'number' && user.onTimeRate > 0 ? `${user.onTimeRate}%` : user.completedTasksThisWeek > 0 ? '100%' : '0%'}
+          </span>
           <span className="text-[10px] text-slate-400 font-medium">Tepat Waktu</span>
         </div>
       </div>

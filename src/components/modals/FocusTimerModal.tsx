@@ -28,7 +28,6 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
   onSessionComplete,
 }) => {
   const { showAlert } = useDialog();
-  if (!isOpen) return null;
 
   const defaultMinutes = initialMinutes || (task ? task.estimatedDurationMinutes || 45 : 25);
   const [totalSeconds, setTotalSeconds] = useState(defaultMinutes * 60);
@@ -56,6 +55,8 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
     }
     return () => clearInterval(interval);
   }, [isActive, secondsRemaining]);
+
+  if (!isOpen) return null;
 
   const handleReset = () => {
     setIsActive(false);

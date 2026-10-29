@@ -15,6 +15,7 @@ import { Task, Subject } from '../../types';
 interface TasksViewProps {
   tasks: Task[];
   subjects: Subject[];
+  isLoading?: boolean;
   onSelectTask: (task: Task) => void;
   onToggleComplete: (taskId: string) => void;
   onOpenAddTask: () => void;
@@ -24,6 +25,7 @@ interface TasksViewProps {
 export const TasksView: React.FC<TasksViewProps> = ({
   tasks,
   subjects,
+  isLoading,
   onSelectTask,
   onToggleComplete,
   onOpenAddTask,
@@ -163,12 +165,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <h3 className="text-xs font-bold text-slate-900">
-              {activeStatusTab === 'completed' ? 'Belum Ada Tugas Tuntas' : 'Semua Tugas Tuntas!'}
+              {activeStatusTab === 'completed'
+                ? 'Belum Ada Tugas Tuntas'
+                : tasks.length === 0
+                ? 'Belum Ada Tugas'
+                : 'Tidak Ada Tugas Sesuai Filter'}
             </h3>
             <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
               {activeStatusTab === 'completed'
                 ? 'Tugas yang telah kamu tandai selesai akan otomatis tersimpan rapi di tab Tuntas ini.'
-                : 'Tidak ada tugas yang tertunda di filter ini. Waktunya istirahat atau cicil materi baru!'}
+                : tasks.length === 0
+                ? 'Mulai atur ritme belajarmu dengan menekan tombol Tambah di pojok kanan atas.'
+                : 'Tidak ada tugas yang cocok dengan pencarian atau filter yang dipilih.'}
             </p>
           </div>
         ) : (

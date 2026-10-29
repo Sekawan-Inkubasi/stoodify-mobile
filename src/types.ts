@@ -92,6 +92,7 @@ export interface UserProfile {
   streakDays: number;
   totalStudyHours: number;
   completedTasksThisWeek: number;
+  onTimeRate?: number;
   isPro: boolean;
 }
 
