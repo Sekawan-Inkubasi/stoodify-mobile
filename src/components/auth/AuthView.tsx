@@ -5,8 +5,7 @@ import {
   EyeOff, 
   Check, 
   Sparkles, 
-  Info,
-  GraduationCap
+  Info 
 } from 'lucide-react';
 import stoodifyLogo from '../../assets/logo_stoodify.png';
 
@@ -101,9 +100,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
                   Stoodify
                 </h1>
-                <p className="text-[11px] font-semibold text-blue-100 tracking-wider uppercase mt-1">
-                  Khusus Siswa SMA / SMK Sederajat
-                </p>
               </div>
             </div>
           </div>
@@ -299,7 +295,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
             </p>
 
             <p className="text-[10px] text-slate-400 font-mono">
-              &copy; 2026 Stoodify.Inc &bull; SMA & SMK Sederajat
+              &copy; 2026 Stoodify.Inc
             </p>
           </div>
         </div>
@@ -325,12 +321,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
                   Daftar Akun Baru
                 </h2>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-50 text-[#0062FF] px-2 py-0.5 rounded-full border border-blue-100">
-                    <GraduationCap className="w-3 h-3" />
-                    <span>Khusus Siswa SMA / SMK Sederajat</span>
-                  </span>
-                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Lengkapi data untuk membuat akun belajarmu
+                </p>
               </div>
             </div>
 
