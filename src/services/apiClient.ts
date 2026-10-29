@@ -7,12 +7,13 @@ const DEFAULT_LOCAL_API = 'http://localhost:8080/api';
 const DEFAULT_PROD_API = 'https://stoodify.kradev.my.id/api';
 
 function resolveBaseUrl(): string {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim().replace(/\/+$/, '');
   }
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return DEFAULT_LOCAL_API;
-  }
+
+  // Default fallback langsung ke server Production
   return DEFAULT_PROD_API;
 }
 

@@ -35,37 +35,61 @@ Aplikasi ini telah terintegrasi langsung dengan backend API Stoodify ([`stoodify
 
 ---
 
-## 💻 Panduan Menjalankan & Perintah
+## 💻 Panduan Menjalankan & Pengembangan UI (Recommended Workflow)
 
-### 1. Instalasi Dependensi
-```bash
-npm install
+Berikut adalah panduan langkah demi langkah saat Anda ingin fokus mengembangkan tampilan (UI, CSS, komponen, navigasi):
+
+### Langkah 1: Pastikan Target API di `.env`
+Buka file `.env` di root folder `stoodify-mobile`:
+```env
+# Default: langsung terhubung ke database cloud production (tanpa perlu nyalain backend lokal!)
+VITE_API_BASE_URL=https://stoodify.kradev.my.id/api
 ```
+*(Jika ingin beralih ke backend lokal nanti, cukup ganti nilainya ke `http://localhost:8080/api`).*
 
-### 2. Menjalankan Server Pengembangan (Local Dev)
+### Langkah 2: Jalankan Dev Server (Fast HMR)
+Masuk ke folder `stoodify-mobile` dan jalankan:
 ```bash
 npm run dev
 ```
-Akses di browser laptop Anda melalui `http://localhost:5173`.
+Server Vite akan aktif seketika di:
+```text
+http://localhost:5173
+```
 
-### 3. Menjalankan untuk Pengujian di Smartphone (LAN Wi-Fi)
+### Langkah 3: Cara Terbaik Melihat Tampilan (Device Toolbar)
+1. Buka browser (Chrome, Edge, Firefox, atau Brave) di alamat `http://localhost:5173`.
+2. Tekan tombol **`F12`** atau **`Ctrl + Shift + I`** untuk membuka Developer Tools.
+3. Tekan **`Ctrl + Shift + M`** (ikon tablet/ponsel di pojok kiri atas DevTools) untuk mengaktifkan **Device Toolbar**.
+4. Pilih preset ponsel yang diinginkan (misal **Pixel 7**, **iPhone 14/15**, atau set lebar layar ke **390px - 412px**).
+5. **Koding Langsung:** Setiap kali Anda mengedit komponen di folder `src/` (misal `HomeView.tsx`, `TasksView.tsx`, Tailwind class), browser akan otomatis memperbarui tampilan seketika (*Hot Module Replacement*) dalam hitungan milidetik tanpa perlu me-reload halaman!
+
+---
+
+### 📱 Opsi Tambahan: Live Preview Langsung di Layar HP Fisik (Wi-Fi)
+Jika Anda ingin merasakan sensasi sentuhan jari asli di layar smartphone Anda:
 ```bash
 npm run dev -- --host
 ```
-Gunakan opsi `--host` agar server dapat diakses oleh perangkat lain (smartphone/tablet) yang berada dalam satu jaringan Wi-Fi yang sama (misal `http://192.168.1.x:5173`).
+1. Terminal akan menampilkan Network URL, misalnya: `http://192.168.1.15:5173`.
+2. Pastikan HP dan laptop Anda terhubung ke jaringan Wi-Fi yang sama.
+3. Buka browser di HP Anda (Chrome/Safari) dan buka URL tersebut.
+4. Setiap kali Anda save file kodingan di laptop, tampilan di layar HP Anda juga otomatis ikut berubah!
 
-### 4. Kompilasi Web (Build)
-```bash
-npm run build
-```
-Perintah ini akan menjalankan pemeriksaan tipe TypeScript (`tsc -b`) dan kompilasi bundel Vite ke dalam folder `dist/`.
+---
 
-### 5. Mem-build APK Android
-Untuk membuat file installer APK Android dari hasil perubahan kode di folder ini:
+### 📦 Langkah Terakhir: Kompilasi ke APK Rilis
+Setelah selesai mengedit dan puas dengan tampilan UI baru:
 ```bash
+# Pindah ke folder Android Shell
 cd ../stoodify-apk
+
+# Jalankan build otomatis (kompilasi web + generate release APK)
 npm run build:apk
 ```
+File APK installer rilis mandiri (~9.9 MB) akan langsung tersedia di:
+`android/app/build/outputs/apk/release/app-release.apk`
+dan dapat langsung dipasang ke smartphone Android via `adb install -r ...` atau dibagikan ke siswa/penguji.
 
 ---
 
