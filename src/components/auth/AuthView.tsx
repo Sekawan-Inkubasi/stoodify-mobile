@@ -4,9 +4,9 @@ import {
   Eye, 
   EyeOff, 
   Check, 
-  ChevronDown, 
   Sparkles, 
-  Info 
+  Info,
+  GraduationCap
 } from 'lucide-react';
 import stoodifyLogo from '../../assets/logo_stoodify.png';
 
@@ -37,7 +37,7 @@ const GoogleIcon = () => (
 );
 
 export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
-  // Mode: 'welcome' (Splash/Hero - First Screen opened), 'login' (Sign In), 'register' (Create Account)
+  // Mode: 'welcome' (Layar Sambutan Awal), 'login' (Masuk), 'register' (Daftar Akun)
   const [mode, setMode] = useState<'welcome' | 'login' | 'register'>('welcome');
   
   // Password visibility toggles
@@ -46,15 +46,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
   const [agreeTerms, setAgreeTerms] = useState(true);
 
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('nathan.roberts@example.com');
-  const [loginPassword, setLoginPassword] = useState('axkLC8wyoA4M');
+  const [loginEmail, setLoginEmail] = useState('naufal.pratama@student.id');
+  const [loginPassword, setLoginPassword] = useState('password123');
 
   // Register form state
-  const [regName, setRegName] = useState('Vincze Nikolett');
-  const [regEmail, setRegEmail] = useState('nathan.roberts@example.com');
-  const [regRole, setRegRole] = useState('Siswa SMA / SMK (Fase F)');
-  const [regPassword, setRegPassword] = useState('ZB0mLzLH7CU');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('••••••••••••');
+  const [regName, setRegName] = useState('Kevin Raditya');
+  const [regEmail, setRegEmail] = useState('kevin.raditya@student.id');
+  const [regPassword, setRegPassword] = useState('password123');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('password123');
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +62,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess(regName || 'Siswa Baru', regEmail || 'siswa@stoodify.id');
+    onLoginSuccess(regName || 'Siswa SMA', regEmail || 'siswa@stoodify.id');
   };
 
   const handleQuickDemoLogin = () => {
@@ -98,16 +97,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   className="w-full h-full object-contain filter brightness-0 invert drop-shadow-md" 
                 />
               </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
-                Stoodify
-              </h1>
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+                  Stoodify
+                </h1>
+                <p className="text-[11px] font-semibold text-blue-100 tracking-wider uppercase mt-1">
+                  Khusus Siswa SMA / SMK Sederajat
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Bottom Content Area */}
           <div className="w-full flex-1 bg-white px-7 pt-2 pb-8 flex flex-col justify-between max-w-[420px] mx-auto z-10">
-            <p className="text-xs sm:text-sm text-slate-500 font-normal text-center max-w-[280px] mx-auto leading-relaxed">
-              Your AI Assistant for Task Management and Study Schedule.
+            <p className="text-xs sm:text-sm text-slate-500 font-normal text-center max-w-[290px] mx-auto leading-relaxed">
+              Asisten AI cerdas untuk membagi waktu belajar dan menyelesaikan tugas sekolah tanpa burnout.
             </p>
 
             {/* Action Buttons */}
@@ -117,7 +121,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 onClick={() => setMode('login')}
                 className="w-full py-3.5 px-6 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-lg shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
               >
-                Sign In
+                Masuk ke Akun
               </button>
 
               <button
@@ -125,7 +129,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 onClick={() => setMode('register')}
                 className="w-full py-3.5 px-6 rounded-full text-[#1E50FF] font-semibold text-xs sm:text-sm tracking-wide bg-white border border-[#1E50FF] hover:bg-blue-50/50 active:scale-98 transition-all cursor-pointer text-center"
               >
-                Create Account
+                Daftar Akun Baru
               </button>
 
               <button
@@ -133,7 +137,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 onClick={handleQuickDemoLogin}
                 className="w-full text-center text-[11px] font-semibold text-slate-400 hover:text-blue-600 transition-colors pt-1 cursor-pointer block"
               >
-                Masuk Mode Demo (Naufal Pratama)
+                Coba Mode Demo (Naufal Pratama)
               </button>
             </div>
           </div>
@@ -142,10 +146,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
       )}
 
       {/* ========================================================= */}
-      {/* 2. SIGN IN SCREEN (Layar Detail Login)                    */}
+      {/* 2. SIGN IN SCREEN (Layar Masuk / Login)                    */}
       {/* ========================================================= */}
       {mode === 'login' && (
-        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar">
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar modal-enter-smooth">
           <div>
             {/* Top Row: Back button + Circular Stoodify Logo + Version */}
             <div className="flex items-center justify-between mb-7">
@@ -176,19 +180,29 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               </span>
             </div>
 
+            {/* Title */}
+            <div className="mb-5">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                Selamat Datang Kembali
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Masuk untuk mengakses jadwal dan tugas belajarmu
+              </p>
+            </div>
+
             {/* Sign In Form */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               {/* Field: Email / Username */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Email / Username
+                  Email atau Nama Pengguna
                 </label>
                 <input
                   type="text"
                   required
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="nathan.roberts@example.com"
+                  placeholder="naufal.pratama@student.id"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
@@ -196,7 +210,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               {/* Field: Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Password
+                  Kata Sandi
                 </label>
                 <div className="relative">
                   <input
@@ -204,14 +218,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Masukkan kata sandi"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-3 text-xs sm:text-sm text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                    aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -224,7 +238,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   type="submit"
                   className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
                 >
-                  Sign In
+                  Masuk Sekarang
                 </button>
               </div>
 
@@ -232,17 +246,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               <div className="text-center pt-0.5">
                 <button
                   type="button"
-                  onClick={() => alert('Link pemulihan kata sandi telah dikirim ke email terdaftar.')}
+                  onClick={() => alert('Petunjuk pemulihan kata sandi telah dikirim ke email terdaftar.')}
                   className="text-xs font-semibold text-slate-600 hover:text-[#1E50FF] transition-colors cursor-pointer"
                 >
-                  Forgot Password?
+                  Lupa Kata Sandi?
                 </button>
               </div>
 
-              {/* Divider "Or" */}
+              {/* Divider "Atau" */}
               <div className="flex items-center gap-3 pt-1" aria-hidden="true">
                 <div className="h-px flex-1 bg-slate-200/80" />
-                <span className="text-[11px] text-slate-400 font-medium">Or</span>
+                <span className="text-[11px] text-slate-400 font-medium">Atau</span>
                 <div className="h-px flex-1 bg-slate-200/80" />
               </div>
 
@@ -255,7 +269,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-slate-700 font-semibold text-xs py-3 px-4 rounded-2xl border border-slate-200/60 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
                   <GoogleIcon />
-                  <span>Continue with Google</span>
+                  <span>Lanjutkan dengan Google</span>
                 </button>
 
                 {/* 1-Click Demo Login */}
@@ -265,7 +279,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-[#1E50FF] font-semibold text-xs py-3 px-4 rounded-2xl border border-blue-200/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 fill-[#1E50FF]" />
-                  <span>Masuk Mode Demo (Naufal Pratama)</span>
+                  <span>Masuk Cepat Mode Demo</span>
                 </button>
               </div>
             </form>
@@ -274,42 +288,50 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
           {/* Bottom Section */}
           <div className="pt-6 text-center space-y-2">
             <p className="text-xs text-slate-500 font-medium">
-              Don't have an account?{' '}
+              Belum punya akun?{' '}
               <button
                 type="button"
                 onClick={() => setMode('register')}
                 className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
-                Sign up
+                Daftar sekarang
               </button>
             </p>
 
             <p className="text-[10px] text-slate-400 font-mono">
-              &copy; 2026 Stoodify.Inc
+              &copy; 2026 Stoodify.Inc &bull; SMA & SMK Sederajat
             </p>
           </div>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* 3. CREATE ACCOUNT SCREEN (Layar Register)                 */}
+      {/* 3. CREATE ACCOUNT SCREEN (Layar Daftar Akun Baru)          */}
       {/* ========================================================= */}
       {mode === 'register' && (
-        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar">
+        <div className="w-full h-full min-h-full flex-1 flex flex-col justify-between px-7 py-7 max-w-[420px] mx-auto overflow-y-auto no-scrollbar modal-enter-smooth">
           <div>
             {/* Header: Back Button + Title */}
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-5">
               <button
                 type="button"
                 onClick={() => setMode('login')}
                 className="p-1 -ml-1 text-slate-700 hover:text-[#1E50FF] cursor-pointer transition-colors"
-                aria-label="Kembali ke Sign In"
+                aria-label="Kembali ke halaman masuk"
               >
                 <ArrowLeft className="w-5 h-5 stroke-[2.2px]" />
               </button>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                Create Account
-              </h2>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Daftar Akun Baru
+                </h2>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-50 text-[#0062FF] px-2 py-0.5 rounded-full border border-blue-100">
+                    <GraduationCap className="w-3 h-3" />
+                    <span>Khusus Siswa SMA / SMK Sederajat</span>
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Register Form */}
@@ -317,61 +339,41 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Full Name
+                  Nama Lengkap Siswa
                 </label>
                 <input
                   type="text"
                   required
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  placeholder="Vincze Nikolett"
+                  placeholder="Contoh: Kevin Raditya"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
 
-              {/* School / Work Email */}
+              {/* School / Student Email */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  School / Work Email
+                  Email Siswa / Sekolah
                 </label>
                 <input
                   type="email"
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="nathan.roberts@example.com"
+                  placeholder="kevin.raditya@student.id"
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                 />
-                <p className="text-[10px] text-amber-700/90 font-medium flex items-center gap-1 mt-1">
-                  <Info className="w-3 h-3 shrink-0" />
-                  <span>Please use your school or student email address</span>
+                <p className="text-[10px] text-slate-500 font-normal flex items-center gap-1 mt-1">
+                  <Info className="w-3 h-3 text-[#0062FF] shrink-0" />
+                  <span>Gunakan email sekolah atau email aktif siswa</span>
                 </p>
-              </div>
-
-              {/* Role / Grade Select */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Role / Tingkat
-                </label>
-                <div className="relative">
-                  <select
-                    value={regRole}
-                    onChange={(e) => setRegRole(e.target.value)}
-                    className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl px-4 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none appearance-none transition-all cursor-pointer"
-                  >
-                    <option value="Siswa SMA / SMK (Fase F)">Siswa SMA / SMK (Fase F)</option>
-                    <option value="Siswa SMP (Fase D)">Siswa SMP (Fase D)</option>
-                    <option value="Mahasiswa (Undergraduate)">Mahasiswa (Undergraduate)</option>
-                    <option value="Guru / Mentor">Guru / Mentor</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
               </div>
 
               {/* Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Password
+                  Kata Sandi
                 </label>
                 <div className="relative">
                   <input
@@ -379,14 +381,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="ZB0mLzLH7CU"
+                    placeholder="Buat kata sandi baru"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                    aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
+                    aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -396,7 +398,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               {/* Confirm Password */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Confirm Password
+                  Konfirmasi Kata Sandi
                 </label>
                 <div className="relative">
                   <input
@@ -404,14 +406,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     required
                     value={regConfirmPassword}
                     onChange={(e) => setRegConfirmPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Ulangi kata sandi"
                     className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] focus:bg-white border border-transparent focus:border-[#1E50FF]/60 rounded-2xl pl-4 pr-11 py-2.5 text-xs text-slate-800 font-medium focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                    aria-label={showConfirmPassword ? 'Sembunyikan password' : 'Lihat password'}
+                    aria-label={showConfirmPassword ? 'Sembunyikan kata sandi' : 'Lihat kata sandi'}
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -432,10 +434,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                     {agreeTerms && <Check className="w-2.5 h-2.5 stroke-[3px]" />}
                   </div>
                   <span className="text-[11px] text-slate-500 leading-tight">
-                    I agree to the{' '}
-                    <span className="text-slate-700 font-semibold underline">Terms & Conditions</span>
-                    {' '}and{' '}
-                    <span className="text-slate-700 font-semibold underline">Privacy Policy</span>
+                    Saya menyetujui{' '}
+                    <span className="text-slate-700 font-semibold underline">Syarat & Ketentuan</span>
+                    {' '}serta{' '}
+                    <span className="text-slate-700 font-semibold underline">Kebijakan Privasi</span>
+                    {' '}Stoodify.
                   </span>
                 </label>
               </div>
@@ -446,7 +449,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                   type="submit"
                   className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
                 >
-                  Create Account
+                  Daftar Akun Sekarang
                 </button>
               </div>
             </form>
@@ -455,13 +458,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
           {/* Bottom Link */}
           <div className="pt-6 text-center">
             <p className="text-xs text-slate-500 font-medium">
-              Already have an account?{' '}
+              Sudah memiliki akun?{' '}
               <button
                 type="button"
                 onClick={() => setMode('login')}
                 className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
-                Sign In
+                Masuk
               </button>
             </p>
           </div>
