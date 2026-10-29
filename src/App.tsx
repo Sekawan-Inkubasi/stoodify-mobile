@@ -71,57 +71,19 @@ export function App() {
     setTasks(prev => prev.map(t => {
       if (t.id === taskId) {
         const nextStatus = t.status === 'completed' ? 'in_progress' : 'completed';
-        const nextProgress = nextStatus === 'completed' ? 100 : 50;
         return {
           ...t,
           status: nextStatus,
-          progress: nextProgress,
-          subtasks: t.subtasks.map(st => ({ ...st, isCompleted: nextStatus === 'completed' })),
-        };
-      }
-      return t;
-    }));
-  };
-
-  const handleToggleSubtask = (taskId: string, subtaskId: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === taskId) {
-        const nextSubtasks = t.subtasks.map(st => st.id === subtaskId ? { ...st, isCompleted: !st.isCompleted } : st);
-        const completedCount = nextSubtasks.filter(s => s.isCompleted).length;
-        const progress = Math.round((completedCount / nextSubtasks.length) * 100);
-        const status = progress === 100 ? 'completed' : progress > 0 ? 'in_progress' : 'not_started';
-        return {
-          ...t,
-          subtasks: nextSubtasks,
-          progress,
-          status,
         };
       }
       return t;
     }));
 
-    // Also update selected task view in real time
     if (selectedTask && selectedTask.id === taskId) {
-      setSelectedTask(prev => {
-        if (!prev) return null;
-        const nextSubtasks = prev.subtasks.map(st => st.id === subtaskId ? { ...st, isCompleted: !st.isCompleted } : st);
-        const completedCount = nextSubtasks.filter(s => s.isCompleted).length;
-        const progress = Math.round((completedCount / nextSubtasks.length) * 100);
-        return {
-          ...prev,
-          subtasks: nextSubtasks,
-          progress,
-          status: progress === 100 ? 'completed' : 'in_progress',
-        };
-      });
-    }
-  };
-
-  const handleUpdateProgress = (taskId: string, progress: number) => {
-    const status = progress === 100 ? 'completed' : progress > 0 ? 'in_progress' : 'not_started';
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, progress, status } : t));
-    if (selectedTask && selectedTask.id === taskId) {
-      setSelectedTask(prev => prev ? { ...prev, progress, status } : null);
+      setSelectedTask(prev => prev ? {
+        ...prev,
+        status: prev.status === 'completed' ? 'in_progress' : 'completed',
+      } : null);
     }
   };
 
@@ -339,8 +301,6 @@ export function App() {
         task={selectedTask}
         isOpen={Boolean(selectedTask)}
         onClose={() => setSelectedTask(null)}
-        onToggleSubtask={handleToggleSubtask}
-        onUpdateProgress={handleUpdateProgress}
         onToggleTaskComplete={handleToggleTaskComplete}
         onStartFocus={handleOpenFocusTimer}
         onDeleteTask={handleDeleteTask}

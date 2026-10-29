@@ -155,7 +155,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
         ) : (
           filteredTasks.map((task) => {
             const isCompleted = task.status === 'completed';
-            const completedCount = task.subtasks.filter(s => s.isCompleted).length;
 
             return (
               <div
@@ -220,23 +219,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       </div>
                     )}
 
-                    {/* Subtask progress and deadline */}
+                    {/* Schedule allocation and deadline */}
                     <div className="mt-2.5 pt-2 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-500">
                       <div className="flex items-center gap-1 font-medium text-slate-600">
                         <Clock className="w-3 h-3 text-slate-400" />
                         <span>{task.deadlineFormatted}</span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-700">
-                          {completedCount}/{task.subtasks.length} Subtugas
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[10px]">
+                          {task.estimatedDurationMinutes}m Alokasi
                         </span>
-                        <div className="w-12 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                          <div 
-                            className="bg-[#0062FF] h-full rounded-full transition-all"
-                            style={{ width: `${task.progress}%` }}
-                          />
-                        </div>
                       </div>
                     </div>
                   </div>

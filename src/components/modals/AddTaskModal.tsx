@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Sparkles, Clock, AlertCircle } from 'lucide-react';
+import { X, Plus, Sparkles, Clock } from 'lucide-react';
 import { Subject, Task } from '../../types';
 
 interface AddTaskModalProps {
@@ -25,20 +25,9 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
   const [duration, setDuration] = useState(45);
   const [deadlineDate, setDeadlineDate] = useState('Besok, 23:59 WIB');
   const [taskType, setTaskType] = useState<'Individu' | 'Kelompok' | 'Praktikum' | 'Proyek'>('Individu');
-  const [subtasks, setSubtasks] = useState<string[]>(['Baca instruksi materi', 'Kerjakan soal evaluasi']);
-  const [newSubtaskInput, setNewSubtaskInput] = useState('');
+  const [notes, setNotes] = useState('');
 
   const currentSubjectObj = subjects.find(s => s.name === selectedSubject);
-
-  const handleAddSubtask = () => {
-    if (!newSubtaskInput.trim()) return;
-    setSubtasks([...subtasks, newSubtaskInput.trim()]);
-    setNewSubtaskInput('');
-  };
-
-  const handleRemoveSubtask = (index: number) => {
-    setSubtasks(subtasks.filter((_, i) => i !== index));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,16 +56,11 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
       estimatedDurationMinutes: duration,
       priorityLevel,
       priorityScore,
-      progress: 0,
       status: 'not_started',
       taskType,
-      aiReasoning: `Prioritas ${priorityLevel} dihitung otomatis dari tingkat kesulitan ${difficulty.toLowerCase()} dan durasi ${duration} menit.`,
-      subtasks: subtasks.map((st, idx) => ({
-        id: `st-new-${Date.now()}-${idx}`,
-        title: st,
-        isCompleted: false,
-      })),
-      notes: '',
+      scheduledSlot: '19:30 - 20:15 WIB',
+      aiReasoning: `Prioritas ${priorityLevel} dihitung otomatis dari tingkat kesulitan ${difficulty.toLowerCase()} dan durasi ${duration} menit. AI telah menyiapkan slot waktu belajar.`,
+      notes: notes.trim(),
     });
 
     onClose();
@@ -90,7 +74,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
         <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-slate-900">Tambah Tugas Baru</h2>
-            <p className="text-[11px] font-normal text-slate-500">AI menghitung estimasi waktu & beban belajar</p>
+            <p className="text-[11px] font-normal text-slate-500">AI mengatur alokasi jadwal pengerjaan otomatis</p>
           </div>
           <button
             onClick={onClose}
@@ -147,6 +131,27 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </select>
           </div>
 
+          {/* Batas Waktu / Deadline */}
+          <div>
+            <label className="block font-bold text-slate-700 mb-1">Batas Waktu (Deadline)</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['Hari Ini, 23:59 WIB', 'Besok, 23:59 WIB', 'Lusa, 21:00 WIB'].map((d) => (
+                <button
+                  type="button"
+                  key={d}
+                  onClick={() => setDeadlineDate(d)}
+                  className={`py-2 px-1 rounded-xl text-[10px] font-semibold transition-all cursor-pointer truncate ${
+                    deadlineDate === d
+                      ? 'bg-blue-50 text-[#0062FF] border border-blue-300'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {d.split(',')[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Tingkat Kesulitan */}
           <div>
             <label className="block font-bold text-slate-700 mb-1">Tingkat Kesulitan</label>
@@ -171,7 +176,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
           {/* Estimasi Durasi Waktu */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="font-bold text-slate-700">Estimasi Durasi Belajar</label>
+              <label className="font-bold text-slate-700">Estimasi Alokasi Waktu Belajar</label>
               <span className="font-bold text-[#0062FF]">{duration} Menit</span>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
@@ -192,40 +197,37 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             </div>
           </div>
 
-          {/* Subtugas */}
+          {/* Jenis Tugas */}
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Langkah Pengerjaan</label>
-            <div className="space-y-1.5 mb-2">
-              {subtasks.map((st, i) => (
-                <div key={i} className="flex items-center justify-between bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-700 text-[11px] truncate flex-1">{i + 1}. {st}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSubtask(i)}
-                    className="text-slate-400 hover:text-rose-500 cursor-pointer p-0.5"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            <label className="block font-bold text-slate-700 mb-1">Jenis Pengerjaan</label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {(['Individu', 'Kelompok', 'Praktikum', 'Proyek'] as const).map(type => (
+                <button
+                  type="button"
+                  key={type}
+                  onClick={() => setTaskType(type)}
+                  className={`py-1.5 rounded-xl font-medium text-[10px] border transition-all cursor-pointer ${
+                    taskType === type
+                      ? 'bg-blue-50 text-[#0062FF] border-blue-300 font-semibold'
+                      : 'bg-white text-slate-600 border-slate-200'
+                  }`}
+                >
+                  {type}
+                </button>
               ))}
             </div>
+          </div>
 
-            <div className="flex gap-1.5">
-              <input
-                type="text"
-                value={newSubtaskInput}
-                onChange={(e) => setNewSubtaskInput(e.target.value)}
-                placeholder="Tambah langkah subtugas..."
-                className="flex-1 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-[#0062FF]"
-              />
-              <button
-                type="button"
-                onClick={handleAddSubtask}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded-xl text-xs cursor-pointer"
-              >
-                + Tambah
-              </button>
-            </div>
+          {/* Catatan Tambahan (Opsional) */}
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Contoh: Kumpulkan di meja guru atau via LMS"
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0062FF]"
+            />
           </div>
 
           {/* AI Banner Preview */}
@@ -234,7 +236,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
             <div className="text-[11px]">
               <span className="font-semibold text-blue-950 block">AI Scheduling Support</span>
               <p className="text-slate-600 mt-0.5 leading-relaxed font-normal">
-                Tugas ini akan disinkronkan ke slot fokus malam dan diberi bobot prioritas adaptif.
+                Stoodify akan otomatis membagikan slot waktu belajar untuk tugas ini ke dalam jadwal belajarmu.
               </p>
             </div>
           </div>

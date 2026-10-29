@@ -1,12 +1,6 @@
 export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
 export type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'overdue';
 
-export interface Subtask {
-  id: string;
-  title: string;
-  isCompleted: boolean;
-}
-
 export interface Task {
   id: string;
   title: string;
@@ -18,12 +12,11 @@ export interface Task {
   estimatedDurationMinutes: number;
   priorityLevel: PriorityLevel;
   priorityScore: number;
-  progress: number; // 0-100
   status: TaskStatus;
-  subtasks: Subtask[];
   aiReasoning: string;
   taskType: 'Individu' | 'Kelompok' | 'Praktikum' | 'Proyek' | 'Ulangan' | 'Hafalan';
   notes?: string;
+  scheduledSlot?: string;
 }
 
 export interface AISession {
