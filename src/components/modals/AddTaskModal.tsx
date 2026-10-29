@@ -140,8 +140,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
       priorityScore,
       status: 'not_started',
       taskType,
-      scheduledSlot: '19:30 - 20:30 WIB',
-      aiReasoning: `Prioritas ${priorityLevel} & estimasi alokasi waktu ${estimatedDuration} menit dihitung otomatis oleh AI dari tingkat kesulitan ${difficulty.toLowerCase()}.`,
+      aiReasoning: `Prioritas ${priorityLevel} dihitung otomatis oleh AI dari tingkat kesulitan ${difficulty.toLowerCase()}.`,
       notes: notes.trim(),
       attachment: attachment || undefined,
     });
@@ -399,7 +398,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
               <div className="text-[11px]">
                 <span className="font-semibold text-blue-950 block">AI Scheduling Support</span>
                 <p className="text-slate-600 mt-0.5 leading-relaxed font-normal">
-                  AI otomatis memperkirakan durasi pengerjaan ({estimatedDuration} menit) dan membagi waktu belajar ke jadwal harianmu.
+                  Tugas ini akan diprioritaskan dan diatur pembagian jadwalnya oleh AI Stoodify secara cerdas.
                 </p>
               </div>
             </div>

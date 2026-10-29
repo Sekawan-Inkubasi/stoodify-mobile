@@ -6,8 +6,6 @@ import {
   Sparkles, 
   Timer, 
   Trash2,
-  CalendarCheck2,
-  Hourglass,
   FileText
 } from 'lucide-react';
 import { Task } from '../../types';
@@ -34,13 +32,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const isCompleted = task.status === 'completed';
 
   // Sesi Fokus duration selection states
-  const [selectedDuration, setSelectedDuration] = useState<number>(task.estimatedDurationMinutes || 45);
+  const [selectedDuration, setSelectedDuration] = useState<number>(45);
   const [isCustomDuration, setIsCustomDuration] = useState<boolean>(false);
   const [customInput, setCustomInput] = useState<string>('');
 
   useEffect(() => {
     if (task) {
-      setSelectedDuration(task.estimatedDurationMinutes || 45);
+      setSelectedDuration(45);
       setIsCustomDuration(false);
       setCustomInput('');
     }
@@ -61,6 +59,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </span>
             <span className="text-[10px] font-medium bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">
               {task.taskType}
+            </span>
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+              isCompleted 
+                ? 'bg-emerald-100 text-emerald-700' 
+                : 'bg-blue-100 text-blue-700'
+            }`}>
+              {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
             </span>
           </div>
 
@@ -97,52 +102,16 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <div className="flex items-center gap-2 mt-1.5 text-slate-500 text-[11px] font-normal">
               <Clock className="w-3.5 h-3.5 text-slate-400" />
               <span>Batas Waktu: <strong className="font-semibold text-slate-800">{task.deadlineFormatted}</strong></span>
-              <span>&bull;</span>
-              <span>{task.estimatedDurationMinutes} Menit Alokasi</span>
             </div>
           </div>
 
-          {/* Pembagian Jadwal & Waktu Tugas (Fokus Stoodify) */}
-          <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100/90 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px] uppercase tracking-wider">
-                <CalendarCheck2 className="w-4 h-4 text-[#0062FF]" />
-                <span>Alokasi Jadwal & Waktu</span>
-              </div>
-              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                isCompleted 
-                  ? 'bg-emerald-100 text-emerald-700' 
-                  : 'bg-blue-100 text-blue-700'
-              }`}>
-                {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
-              </span>
+          {/* Catatan Tugas (Jika Ada) */}
+          {task.notes && (
+            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 text-xs text-slate-600">
+              <strong className="text-slate-800 font-semibold block mb-0.5 text-[11px]">Catatan Tugas:</strong>
+              <p className="font-normal text-slate-600 leading-relaxed text-[11px]">{task.notes}</p>
             </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <div className="bg-white p-3 rounded-2xl border border-slate-200/70 shadow-xs">
-                <span className="text-[10px] text-slate-400 font-medium block">Durasi Belajar</span>
-                <span className="text-sm font-bold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <Hourglass className="w-3.5 h-3.5 text-[#0062FF]" />
-                  {task.estimatedDurationMinutes} Menit
-                </span>
-              </div>
-
-              <div className="bg-white p-3 rounded-2xl border border-slate-200/70 shadow-xs">
-                <span className="text-[10px] text-slate-400 font-medium block">Slot Waktu AI</span>
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1 mt-0.5 truncate">
-                  <Clock className="w-3.5 h-3.5 text-[#0062FF] shrink-0" />
-                  <span className="truncate">{task.scheduledSlot || 'Sesi Malam'}</span>
-                </span>
-              </div>
-            </div>
-
-            {task.notes && (
-              <div className="bg-white/80 p-2.5 rounded-xl border border-slate-200/60 text-[11px] text-slate-600">
-                <strong className="text-slate-700 font-semibold">Catatan: </strong>
-                {task.notes}
-              </div>
-            )}
-          </div>
+          )}
 
           {/* File / Foto Lampiran Tugas (Jika Ada) */}
           {task.attachment && (

@@ -227,8 +227,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[10px]">
-                          {task.estimatedDurationMinutes}m Alokasi
+                        <span className={`font-bold px-2 py-0.5 rounded-md text-[10px] ${
+                          isCompleted ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50'
+                        }`}>
+                          {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
                         </span>
                       </div>
                     </div>
