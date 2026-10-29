@@ -47,35 +47,27 @@ export const authService = {
     name: string;
     email: string;
     password: string;
+    confirmPassword?: string;
     grade?: string;
     school?: string;
   }): Promise<UserAuthData> {
-    const res = await apiRequest("/auth/register", {
+    await apiRequest("/auth/register", {
       method: "POST",
       body: JSON.stringify({
         name: data.name,
         email: data.email,
         password: data.password,
+        confirm_password: data.confirmPassword || data.password,
       }),
     });
 
-    const accessToken = res.access_token || res.token;
-    const refreshToken = res.refresh_token;
-    if (accessToken) {
-      tokenStorage.setTokens(accessToken, refreshToken);
-    }
-
-    const user = res.user || {};
+    // Otomatis login setelah registrasi untuk mengambil access & refresh token
+    const loggedInUser = await this.login(data.email, data.password);
     return {
-      id: user.id || "usr-new",
-      name: user.name || data.name,
-      email: user.email || data.email,
-      grade: data.grade || "SMA Kelas 11 - Fase F",
-      school: data.school || "SMAN 1 Teladan",
-      streakDays: 1,
-      totalStudyHours: 0,
-      completedTasksThisWeek: 0,
-      isPro: false,
+      ...loggedInUser,
+      name: data.name || loggedInUser.name,
+      grade: data.grade || loggedInUser.grade,
+      school: data.school || loggedInUser.school,
     };
   },
 
@@ -86,16 +78,16 @@ export const authService = {
     try {
       return await this.login(demoEmail, demoPassword);
     } catch {
-      // Jika akun demo belum ada di DB backend, buat secara otomatis
+      // Jika akun demo belum ada di DB backend, buat secara otomatis dengan confirm_password
       try {
-        await this.register({
+        return await this.register({
           name: "Naufal Pratama",
           email: demoEmail,
           password: demoPassword,
+          confirmPassword: demoPassword,
           grade: "SMA Kelas 11 - Fase F",
           school: "SMAN 1 Teladan",
         });
-        return await this.login(demoEmail, demoPassword);
       } catch (err) {
         console.error("Gagal inisialisasi akun demo:", err);
         throw err;

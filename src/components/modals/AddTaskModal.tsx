@@ -131,6 +131,7 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
     onAddTask({
       title: title.trim(),
       subject: selectedSubject,
+      subjectId: currentSubjectObj?.id,
       subjectColor: currentSubjectObj?.color || '#0062FF',
       deadline: deadlineIso,
       deadlineFormatted: formattedDeadline,

@@ -1,23 +1,23 @@
 import { apiRequest } from "./apiClient";
 import { ScheduleItem } from "../types";
+import { subjectService } from "./subjectService";
 
-const DAY_MAP_TO_NUM: Record<string, number> = {
-  Senin: 1,
-  Selasa: 2,
-  Rabu: 3,
-  Kamis: 4,
-  Jumat: 5,
+const DAY_EN_TO_ID: Record<string, "Senin" | "Selasa" | "Rabu" | "Kamis" | "Jumat"> = {
+  Monday: "Senin",
+  Tuesday: "Selasa",
+  Wednesday: "Rabu",
+  Thursday: "Kamis",
+  Friday: "Jumat",
+  Saturday: "Senin",
+  Sunday: "Senin",
 };
 
-const NUM_TO_DAY_MAP: Record<
-  number,
-  "Senin" | "Selasa" | "Rabu" | "Kamis" | "Jumat"
-> = {
-  1: "Senin",
-  2: "Selasa",
-  3: "Rabu",
-  4: "Kamis",
-  5: "Jumat",
+const DAY_ID_TO_EN: Record<string, string> = {
+  Senin: "Monday",
+  Selasa: "Tuesday",
+  Rabu: "Wednesday",
+  Kamis: "Thursday",
+  Jumat: "Friday",
 };
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -32,15 +32,14 @@ const SUBJECT_COLORS: Record<string, string> = {
 };
 
 export function adaptBackendSchedule(raw: any): ScheduleItem {
-  const dayNum =
-    typeof raw.day_of_week === "number"
-      ? raw.day_of_week
-      : DAY_MAP_TO_NUM[raw.day] || 1;
-  const day = NUM_TO_DAY_MAP[dayNum] || "Senin";
+  const day = typeof raw.day_of_week === "string" 
+    ? (DAY_EN_TO_ID[raw.day_of_week] || "Senin")
+    : "Senin";
+
   const subjectName =
-    raw.subject_name || raw.subject?.name || raw.title || "Mata Pelajaran";
+    raw.subject?.name || raw.subject_name || raw.title || "Mata Pelajaran";
   const color =
-    raw.subject_color || SUBJECT_COLORS[subjectName] || SUBJECT_COLORS.default;
+    raw.subject?.color || raw.subject_color || SUBJECT_COLORS[subjectName] || SUBJECT_COLORS.default;
   const time =
     raw.start_time && raw.end_time
       ? `${raw.start_time.slice(0, 5)} - ${raw.end_time.slice(0, 5)}`
@@ -73,24 +72,43 @@ export const scheduleService = {
     item: Omit<ScheduleItem, "id"> & {
       startTime?: string;
       endTime?: string;
-      subjectId?: string;
+      subjectId?: string | number;
     },
   ): Promise<ScheduleItem> {
-    const dayNum = DAY_MAP_TO_NUM[item.day] || 1;
+    const dayOfWeek = DAY_ID_TO_EN[item.day] || "Monday";
     let [startTime, endTime] = (item.time || "07:00 - 08:30")
       .split(" - ")
       .map((s) => s.trim());
     if (item.startTime) startTime = item.startTime;
     if (item.endTime) endTime = item.endTime;
 
+    // Pastikan format tepat 5 karakter (HH:MM)
+    const formattedStart = startTime.slice(0, 5);
+    const formattedEnd = endTime.slice(0, 5);
+
+    let subjectId = Number(item.subjectId);
+    if (!subjectId || isNaN(subjectId)) {
+      const subjects = await subjectService.getSubjects();
+      const matched = subjects.find(
+        (s) => s.name.toLowerCase() === (item.subjectName || "").toLowerCase(),
+      );
+      if (matched) {
+        subjectId = Number(matched.id);
+      } else {
+        const created = await subjectService.createSubject({
+          name: item.subjectName || "Umum",
+          color: item.subjectColor || "#2563EB",
+          difficulty: "Sedang",
+        });
+        subjectId = Number(created.id);
+      }
+    }
+
     const payload = {
-      day_of_week: dayNum,
-      start_time: startTime.length === 5 ? `${startTime}:00` : startTime,
-      end_time: endTime.length === 5 ? `${endTime}:00` : endTime,
-      subject_name: item.subjectName,
-      subject_id: item.subjectId,
-      room: item.room,
-      teacher: item.teacher,
+      subject_id: subjectId,
+      day_of_week: dayOfWeek,
+      start_time: formattedStart,
+      end_time: formattedEnd,
     };
 
     const res = await apiRequest("/schedules", {

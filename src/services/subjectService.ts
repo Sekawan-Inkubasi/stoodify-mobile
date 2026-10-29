@@ -3,18 +3,9 @@ import { Subject } from "../types";
 
 export function adaptBackendSubject(raw: any): Subject {
   let difficulty: "Mudah" | "Sedang" | "Sulit" = "Sedang";
-  if (
-    raw.difficulty === "Mudah" ||
-    raw.difficulty_level === 1 ||
-    raw.difficulty_level === 2
-  )
-    difficulty = "Mudah";
-  else if (
-    raw.difficulty === "Sulit" ||
-    raw.difficulty_level === 4 ||
-    raw.difficulty_level === 5
-  )
-    difficulty = "Sulit";
+  const diffVal = raw.difficulty || raw.difficulty_level || 3;
+  if (diffVal <= 2 || raw.difficulty === "Mudah") difficulty = "Mudah";
+  else if (diffVal >= 4 || raw.difficulty === "Sulit") difficulty = "Sulit";
 
   return {
     id: String(raw.id),
@@ -43,9 +34,8 @@ export const subjectService = {
   ): Promise<Subject> {
     const payload = {
       name: subject.name,
-      teacher: subject.teacher,
-      color: subject.color,
-      difficulty_level:
+      color: subject.color || "#2563EB",
+      difficulty:
         subject.difficulty === "Sulit"
           ? 4
           : subject.difficulty === "Mudah"
@@ -65,9 +55,8 @@ export const subjectService = {
     const payload: any = {};
     if (subject.name) payload.name = subject.name;
     if (subject.color) payload.color = subject.color;
-    if (subject.teacher) payload.teacher = subject.teacher;
     if (subject.difficulty) {
-      payload.difficulty_level =
+      payload.difficulty =
         subject.difficulty === "Sulit"
           ? 4
           : subject.difficulty === "Mudah"
@@ -76,7 +65,7 @@ export const subjectService = {
     }
 
     const res = await apiRequest(`/subjects/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify(payload),
     });
 

@@ -10,6 +10,7 @@ export interface TaskAttachment {
 
 export interface Task {
   id: string;
+  subjectId?: string | number;
   title: string;
   subject: string;
   subjectColor: string;

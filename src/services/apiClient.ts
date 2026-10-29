@@ -132,7 +132,15 @@ export async function apiRequest<T = any>(
   }
 
   if (!response.ok) {
-    const errorMsg = jsonResult?.message || `Request failed with status ${response.status}`;
+    let errorMsg = jsonResult?.message || `Request failed with status ${response.status}`;
+    if (jsonResult?.errors && typeof jsonResult.errors === 'object') {
+      const details = Object.entries(jsonResult.errors)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ');
+      if (details) {
+        errorMsg = `${errorMsg} (${details})`;
+      }
+    }
     throw new ApiError(errorMsg, response.status, jsonResult);
   }
 

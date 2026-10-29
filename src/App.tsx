@@ -115,6 +115,26 @@ export function App() {
         }
         if (apiSubjects && apiSubjects.length > 0) {
           setSubjects(apiSubjects);
+        } else {
+          // Inisialisasi default subjects di database untuk user baru
+          const defaultSubjs = [
+            { name: 'Matematika', color: '#2563EB', difficulty: 'Sulit' as const },
+            { name: 'Fisika', color: '#4F46E5', difficulty: 'Sulit' as const },
+            { name: 'Kimia', color: '#0284C7', difficulty: 'Sedang' as const },
+            { name: 'Biologi', color: '#059669', difficulty: 'Sedang' as const },
+            { name: 'Bahasa Indonesia', color: '#D97706', difficulty: 'Mudah' as const },
+            { name: 'Bahasa Inggris', color: '#7C3AED', difficulty: 'Sedang' as const },
+          ];
+          try {
+            const createdSubjs = await Promise.all(
+              defaultSubjs.map(s => subjectService.createSubject(s))
+            );
+            if (isMounted && createdSubjs.length > 0) {
+              setSubjects(createdSubjs);
+            }
+          } catch (e) {
+            console.warn('Gagal seeding default subjects ke backend:', e);
+          }
         }
         if (apiSessions && apiSessions.length > 0) {
           setSessions(apiSessions);
@@ -165,6 +185,7 @@ export function App() {
       const created = await taskService.createTask({
         title: newTask.title,
         subject: newTask.subject,
+        subjectId: newTask.subjectId,
         deadline: newTask.deadline,
         difficulty: newTask.difficulty,
         estimatedDurationMinutes: newTask.estimatedDurationMinutes,

@@ -87,6 +87,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
         name: regName,
         email: regEmail,
         password: regPassword,
+        confirmPassword: regConfirmPassword,
       });
       onLoginSuccess(user.name, user.email);
     } catch (err: any) {
