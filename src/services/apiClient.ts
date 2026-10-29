@@ -100,7 +100,7 @@ export async function apiRequest<T = any>(
     const refreshToken = tokenStorage.getRefreshToken();
     if (refreshToken) {
       try {
-        const refreshRes = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
+        const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh_token: refreshToken }),
