@@ -30,17 +30,28 @@ export const TasksView: React.FC<TasksViewProps> = ({
   onOpenManageSubjects,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeStatusTab, setActiveStatusTab] = useState<'all' | 'pending' | 'completed' | 'urgent'>('all');
+  const [activeStatusTab, setActiveStatusTab] = useState<'all' | 'urgent' | 'completed'>('all');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
+
+  const activeTasksCount = tasks.filter(t => t.status !== 'completed').length;
+  const urgentTasksCount = tasks.filter(t => t.status !== 'completed' && (t.priorityLevel === 'critical' || t.priorityLevel === 'high')).length;
+  const completedTasksCount = tasks.filter(t => t.status === 'completed').length;
 
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           task.subject.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
 
-    if (activeStatusTab === 'pending' && task.status === 'completed') return false;
-    if (activeStatusTab === 'completed' && task.status !== 'completed') return false;
-    if (activeStatusTab === 'urgent' && (task.priorityLevel !== 'critical' && task.priorityLevel !== 'high')) return false;
+    if (activeStatusTab === 'completed') {
+      // Tab 'Tuntas': Hanya tampilkan tugas yang berstatus completed
+      if (task.status !== 'completed') return false;
+    } else {
+      // Tab 'Semua' & 'Prioritas': Tugas yang SUDAH SELESAI TIDAK BOLEH MUNCUL!
+      if (task.status === 'completed') return false;
+      if (activeStatusTab === 'urgent' && (task.priorityLevel !== 'critical' && task.priorityLevel !== 'high')) {
+        return false;
+      }
+    }
 
     if (selectedSubject !== 'all' && task.subject !== selectedSubject) return false;
 
@@ -85,21 +96,25 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* 3. STATUS FILTER PILLS */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
         {[
-          { id: 'all', label: 'Semua' },
-          { id: 'urgent', label: '⚡ Prioritas' },
-          { id: 'pending', label: 'Dikerjakan' },
-          { id: 'completed', label: 'Tuntas' },
+          { id: 'all', label: 'Semua', count: activeTasksCount },
+          { id: 'urgent', label: '⚡ Prioritas', count: urgentTasksCount },
+          { id: 'completed', label: '✓ Tuntas', count: completedTasksCount },
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveStatusTab(tab.id as any)}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer ${
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
               activeStatusTab === tab.id
                 ? 'bg-[#0062FF] text-white shadow-sm shadow-blue-500/20'
                 : 'bg-white/70 hover:bg-white text-slate-600 border border-white/60'
             }`}
           >
-            {tab.label}
+            <span>{tab.label}</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              activeStatusTab === tab.id ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-500'
+            }`}>
+              {tab.count}
+            </span>
           </button>
         ))}
       </div>
@@ -147,9 +162,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="w-12 h-12 bg-blue-50 text-[#0062FF] rounded-full flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <h3 className="text-xs font-bold text-slate-900">Semua Tugas Tuntas!</h3>
+            <h3 className="text-xs font-bold text-slate-900">
+              {activeStatusTab === 'completed' ? 'Belum Ada Tugas Tuntas' : 'Semua Tugas Tuntas!'}
+            </h3>
             <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
-              Tidak ada tugas yang tertunda di filter ini. Waktunya istirahat atau cicil materi baru!
+              {activeStatusTab === 'completed'
+                ? 'Tugas yang telah kamu tandai selesai akan otomatis tersimpan rapi di tab Tuntas ini.'
+                : 'Tidak ada tugas yang tertunda di filter ini. Waktunya istirahat atau cicil materi baru!'}
             </p>
           </div>
         ) : (
