@@ -58,23 +58,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const todaySession = sessions[0];
   const topPrediction = predictions[0];
 
-  // Nearest deadline calculation
-  const sortedPendingTasks = [...pendingTasks].sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-  const nearestTask = sortedPendingTasks[0];
-
-  let nearestDeadlineDisplay = 'Tidak Ada';
-  let nearestSubjectDisplay = 'Semua Tuntas';
-  if (nearestTask) {
-    if (nearestTask.deadlineFormatted.toLowerCase().includes('hari ini')) {
-      nearestDeadlineDisplay = 'Hari Ini';
-    } else if (nearestTask.deadlineFormatted.toLowerCase().includes('besok')) {
-      nearestDeadlineDisplay = 'Besok';
-    } else {
-      nearestDeadlineDisplay = nearestTask.deadlineFormatted.split(',')[0].split('(')[0].trim();
-    }
-    nearestSubjectDisplay = nearestTask.subject;
-  }
-
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
       
@@ -149,14 +132,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-white/15 relative z-10">
           <div>
             <span className="text-[11px] text-blue-100/90 font-medium block">
-              Deadline Terdekat
+              Total Tugas
             </span>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold tracking-tight text-white">
-                {nearestDeadlineDisplay}
+                {tasks.length}
               </span>
-              <span className="text-xs font-normal text-blue-200 truncate max-w-[85px]" title={nearestSubjectDisplay}>
-                {nearestSubjectDisplay}
+              <span className="text-xs font-normal text-blue-200">
+                Tugas Terdaftar
               </span>
             </div>
           </div>
@@ -167,10 +150,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </span>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold tracking-tight text-amber-300">
-                {pendingTasks.length}
+                {criticalCount}
               </span>
               <span className="text-xs font-normal text-blue-200">
-                {criticalCount > 0 ? `${criticalCount} Mendesak` : 'Tugas Aktif'}
+                {criticalCount > 0 ? 'Mendesak' : 'Terkendali'}
               </span>
             </div>
           </div>
