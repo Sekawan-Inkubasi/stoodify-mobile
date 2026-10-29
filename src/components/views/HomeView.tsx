@@ -15,9 +15,7 @@ import {
   Zap,
   Timer,
   Plus,
-  Calendar,
-  ShieldCheck,
-  RefreshCw
+  Calendar
 } from 'lucide-react';
 import { UserProfile, Task, AISession, MaterialPrediction } from '../../types';
 
@@ -33,7 +31,7 @@ interface HomeViewProps {
   onSelectTask: (task: Task) => void;
   onToggleTaskComplete: (taskId: string) => void;
   onNavigateTab: (tab: string) => void;
-  onReschedulePrompt: () => void;
+  onReschedulePrompt?: () => void;
   onOpenChatbot?: () => void;
 }
 
@@ -55,9 +53,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [activeCategory, setActiveCategory] = useState<'all' | 'logic' | 'visual' | 'focus'>('all');
   
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
+  const criticalCount = pendingTasks.filter(t => t.priorityLevel === 'critical' || t.priorityLevel === 'high').length;
   const urgentTasks = pendingTasks.slice(0, 3);
   const todaySession = sessions[0];
   const topPrediction = predictions[0];
+
+  // Nearest deadline calculation
+  const sortedPendingTasks = [...pendingTasks].sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+  const nearestTask = sortedPendingTasks[0];
+
+  let nearestDeadlineDisplay = 'Tidak Ada';
+  let nearestSubjectDisplay = 'Semua Tuntas';
+  if (nearestTask) {
+    if (nearestTask.deadlineFormatted.toLowerCase().includes('hari ini')) {
+      nearestDeadlineDisplay = 'Hari Ini';
+    } else if (nearestTask.deadlineFormatted.toLowerCase().includes('besok')) {
+      nearestDeadlineDisplay = 'Besok';
+    } else {
+      nearestDeadlineDisplay = nearestTask.deadlineFormatted.split(',')[0].split('(')[0].trim();
+    }
+    nearestSubjectDisplay = nearestTask.subject;
+  }
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
@@ -123,38 +139,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* ========================================================= */}
       {/* 2. SIGNATURE "SMART STUDY DECK" (Fintech Card x Bento)    */}
       {/* ========================================================= */}
-      <div className="bg-gradient-to-br from-[#0B3CD5] via-[#0055F6] to-[#4338CA] rounded-[30px] p-5 text-white shadow-[0_16px_40px_rgba(0,85,246,0.24)] relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#0B3CD5] via-[#0055F6] to-[#4338CA] rounded-[28px] p-5 text-white shadow-[0_16px_40px_rgba(0,85,246,0.22)] relative overflow-hidden">
         
         {/* Subtle Topographic Ambient Curves in Background */}
         <div className="absolute -right-8 -top-8 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
         <div className="absolute right-10 bottom-0 w-32 h-32 bg-cyan-400/15 rounded-full blur-xl pointer-events-none" />
         
-        {/* Top Indicator Strip */}
-        <div className="flex items-center justify-between mb-3 relative z-10">
-          <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-semibold tracking-wide border border-white/20">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
-            <span>AI Status: <strong className="font-semibold text-emerald-300">Terkendali & Siap</strong></span>
-          </div>
-
-          <button
-            onClick={onReschedulePrompt}
-            className="flex items-center gap-1 text-[10px] font-medium bg-white/15 hover:bg-white/25 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 transition-all cursor-pointer active:scale-95 text-white"
-            title="Auto-Healing Reschedule"
-          >
-            <RefreshCw className="w-3 h-3 text-cyan-200" />
-            <span>Auto-Reschedule</span>
-          </button>
-        </div>
-
         {/* Center Primary Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3 py-1.5 mb-3.5 border-b border-white/15 relative z-10">
+        <div className="grid grid-cols-2 gap-3 pb-4 mb-4 border-b border-white/15 relative z-10">
           <div>
             <span className="text-[11px] text-blue-100/90 font-medium block">
-              Sesi Fokus Utama
+              Deadline Terdekat
             </span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-2xl font-bold tracking-tight">45</span>
-              <span className="text-xs font-normal text-blue-200">Menit Fokus</span>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-2xl font-bold tracking-tight text-white">
+                {nearestDeadlineDisplay}
+              </span>
+              <span className="text-xs font-normal text-blue-200 truncate max-w-[85px]" title={nearestSubjectDisplay}>
+                {nearestSubjectDisplay}
+              </span>
             </div>
           </div>
 
@@ -162,11 +165,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <span className="text-[11px] text-blue-100/90 font-medium block">
               Tugas Prioritas
             </span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
+            <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold tracking-tight text-amber-300">
                 {pendingTasks.length}
               </span>
-              <span className="text-xs font-normal text-blue-200">Tugas Aktif</span>
+              <span className="text-xs font-normal text-blue-200">
+                {criticalCount > 0 ? `${criticalCount} Mendesak` : 'Tugas Aktif'}
+              </span>
             </div>
           </div>
         </div>
