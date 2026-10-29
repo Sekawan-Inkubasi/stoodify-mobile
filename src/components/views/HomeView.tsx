@@ -390,8 +390,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 pt-1">
-            <div className="w-5 h-5 rounded-full bg-white/30 flex items-center justify-center text-[10px] font-medium">
-              ✨
+            <div className="w-5 h-5 rounded-full bg-white/90 p-0.5 flex items-center justify-center shadow-xs overflow-hidden">
+              <img 
+                src="/logo_stoodify.png" 
+                alt="Stoodify" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="text-[11px] font-medium text-white/90 truncate">
               oleh Stoodify AI
@@ -420,8 +424,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 pt-1">
-            <div className="w-5 h-5 rounded-full bg-white/30 flex items-center justify-center text-[10px] font-medium">
-              ✨
+            <div className="w-5 h-5 rounded-full bg-white/90 p-0.5 flex items-center justify-center shadow-xs overflow-hidden">
+              <img 
+                src="/logo_stoodify.png" 
+                alt="Stoodify" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="text-[11px] font-medium text-white/90 truncate">
               oleh Stoodify AI
