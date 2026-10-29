@@ -150,11 +150,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="grid grid-cols-2 gap-3 py-1.5 mb-3.5 border-b border-white/15 relative z-10">
           <div>
             <span className="text-[11px] text-blue-100/90 font-medium block">
-              Sesi Fokus Malam
+              Sesi Fokus Utama
             </span>
             <div className="flex items-baseline gap-1.5 mt-0.5">
               <span className="text-2xl font-bold tracking-tight">45</span>
-              <span className="text-xs font-normal text-blue-200">Menit (19:30)</span>
+              <span className="text-xs font-normal text-blue-200">Menit Fokus</span>
             </div>
           </div>
 
@@ -276,7 +276,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             Insight AI Beban Belajar
           </h4>
           <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5 font-normal">
-            1 tugas kimia wajib tuntas malam ini agar besok siap praktikum.
+            1 tugas kimia berada di urutan prioritas teratas hari ini.
           </p>
         </div>
         <button
@@ -296,8 +296,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Header Row: Session Slot Tag & Circular Progress 2/3 */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-1.5 bg-blue-50 text-[#0062FF] px-3 py-1 rounded-full text-[11px] font-semibold">
-              <Clock className="w-3.5 h-3.5 stroke-[2px]" />
-              <span>{todaySession.timeSlot} &bull; {todaySession.durationMinutes}m</span>
+              <Sparkles className="w-3.5 h-3.5 stroke-[2px]" />
+              <span>{todaySession.timeSlot || 'Prioritas #1'} &bull; {todaySession.sessionDate}</span>
             </div>
 
             {/* Circular Progress Badge */}
@@ -350,8 +350,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* 3D Glossy Badge Icon */}
             <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#0062FF] to-indigo-500 shadow-md shadow-blue-500/20 flex flex-col items-center justify-center text-white shrink-0">
-              <span className="text-[9px] font-semibold tracking-wider uppercase opacity-85">AI SESI</span>
-              <span className="text-sm font-bold leading-none mt-0.5">45m</span>
+              <span className="text-[9px] font-semibold tracking-wider uppercase opacity-85">PRIORITAS</span>
+              <span className="text-sm font-bold leading-none mt-0.5">#1</span>
             </div>
           </div>
 

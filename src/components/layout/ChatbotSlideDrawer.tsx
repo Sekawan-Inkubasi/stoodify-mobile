@@ -47,7 +47,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
     {
       id: 'welcome-1',
       sender: 'ai',
-      text: 'Halo Naufal! 👋 Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan jadwal belajarmu malam ini?',
+      text: 'Halo Naufal! 👋 Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan urutan prioritas belajarmu hari ini?',
       time: 'Baru saja',
     },
   ]);
@@ -151,7 +151,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
   }, [isDragging, handleMoveDrag, handleEndDrag]);
 
   const quickPrompts = [
-    { label: '⚡ Susun Ulang Jadwal', prompt: 'Saya ada les tambahan jam 19:00, tolong jadwalkan ulang sesi belajarku malam ini.' },
+    { label: '⚡ Susun Prioritas', prompt: 'Saya ada kegiatan tambahan, tolong sesuaikan urutan prioritas belajarku.' },
     { label: '🔮 Prediksi Soal Kimia', prompt: 'Apa topik ujian Kimia yang paling sering keluar untuk materi Titrasi Asam Basa?' },
     { label: '📊 Ringkasan Beban Belajar', prompt: 'Bisa berikan ringkasan progres dan tugas prioritasku pekan ini?' },
     { label: '💡 Tips Mode Fokus 45 Menit', prompt: 'Bagaimana cara menjaga fokus 45 menit tanpa tergiur buka media sosial?' },
@@ -181,9 +181,9 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
       let actionLabel: string | undefined;
 
       if (lower.includes('susun') || lower.includes('jadwal') || lower.includes('les') || lower.includes('reschedule')) {
-        replyText = '⚡ **AI Adaptive Rescheduler Aktif!**\n\nJadwal belajarmu telah disesuaikan agar tidak bentrok dengan les:\n• **20:30 - 21:15 WIB:** Laporan Praktikum Kimia (45 Menit)\n• **21:20 WIB:** Waktu istirahat santai & tidur cukup.\n\nKlik tombol di bawah untuk langsung menerapkan rekomendasi ini ke Kalender.';
+        replyText = '⚡ **AI Adaptive Rescheduler Aktif!**\n\nUrutan prioritas belajarmu telah disesuaikan:\n• **Prioritas #1 (Hari ini):** Laporan Praktikum Kimia (45 Menit Fokus)\n• **Prioritas #2 (Besok):** Latihan 10 Soal Vektor Dimensi Tiga\n\nKlik tombol di bawah untuk langsung menerapkan rekomendasi urutan ini.';
         actionType = 'reschedule';
-        actionLabel = '⚡ Terapkan Jadwal Ulang Sekarang';
+        actionLabel = '⚡ Terapkan Urutan Prioritas Baru';
       } else if (lower.includes('kimia') || lower.includes('titrasi')) {
         replyText = '🔮 **Prediksi Materi & Bantuan PR Kimia:**\n\n1. **Titik Ekivalen:** Terjadi saat mol asam = mol basa ($n_a \\times M_a \\times V_a = n_b \\times M_b \\times V_b$).\n2. **Indikator PP:** Sangat cocok untuk titrasi Asam Kuat - Basa Kuat (rentang pH 8.3 - 10.0).\n3. Peluang keluar di lembar penilaian guru: **85% probabilitas tinggi**!';
         actionType = 'focus_timer';

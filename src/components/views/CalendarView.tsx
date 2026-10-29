@@ -195,23 +195,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         )}
       </div>
 
-      {/* 3. SESI AI MALAM */}
+      {/* 3. REKOMENDASI PRIORITAS BELAJAR AI */}
       {viewMode === 'integrated' && (
         <div className="space-y-2.5 pt-2">
           <div className="flex items-center gap-1.5 px-1">
             <Sparkles className="w-4 h-4 text-[#0062FF]" />
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              Sesi Belajar Rekomendasi AI Malam
+              Rekomendasi Prioritas Belajar AI
             </h3>
           </div>
 
           <div className="bg-white rounded-[26px] p-4 shadow-[0_4px_20px_rgba(20,40,90,0.05)] border border-white space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-[#0062FF] bg-blue-50 px-2.5 py-0.5 rounded-full">
-                19:30 - 20:15 WIB &bull; 45 Min
+                Prioritas #1 &bull; Hari Ini (45 Min)
               </span>
               <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                Optimal
+                Urutan Teratas
               </span>
             </div>
 
@@ -219,7 +219,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               Fokus Kimia: Laporan Praktikum Titrasi
             </h4>
             <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
-              Jadwal ini dihitung tepat setelah istirahat santai dan sebelum jam istirahat malammu.
+              Tugas ini ditempatkan pada urutan teratas berdasarkan urgensi tenggat dan tingkat kesulitan.
             </p>
 
             <button
@@ -227,7 +227,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               className="mt-2 w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-2.5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>Mulai Timer Sesi Ini</span>
+              <span>Mulai Sesi Fokus Ini</span>
             </button>
           </div>
         </div>

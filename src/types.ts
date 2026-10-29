@@ -34,9 +34,11 @@ export interface AISession {
   subject: string;
   subjectColor: string;
   sessionDate: string;
-  timeSlot: string; // e.g. "19:30 - 20:15"
+  timeSlot?: string; // Priority sequence e.g. "Prioritas #1"
+  priorityRank?: number;
+  priorityLabel?: string;
   durationMinutes: number;
-  targetProgress: number; // e.g. 40%
+  targetProgress?: number;
   reason: string;
   status: 'recommended' | 'accepted' | 'in_progress' | 'completed' | 'skipped';
 }

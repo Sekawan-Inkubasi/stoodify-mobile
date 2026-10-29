@@ -121,7 +121,7 @@ export function App() {
   };
 
   const handleReschedule = () => {
-    alert('⚡ AI Adaptive Rescheduling Aktif!\n\nSeluruh sesi belajar telah diperbarui dengan aman. Sesi Kimia tetap diprioritaskan malam ini sebelum jam tidur.');
+    alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.');
   };
 
   const handleMarkAllNotificationsRead = () => {
