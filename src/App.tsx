@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MobileContainer } from './components/layout/MobileContainer';
 import { BottomNavigation } from './components/layout/BottomNavigation';
 import { ChatbotSlideDrawer } from './components/layout/ChatbotSlideDrawer';
@@ -19,7 +19,7 @@ import { ProPaywallModal } from './components/modals/ProPaywallModal';
 import { ManageSubjectsModal } from './components/modals/ManageSubjectsModal';
 import { AddScheduleModal } from './components/modals/AddScheduleModal';
 
-// Mock Data
+// Mock Data (Fallback)
 import { 
   mockUser, 
   mockSubjects, 
@@ -31,9 +31,19 @@ import {
 } from './data/mockData';
 import { Task, AISession, Subject, ScheduleItem } from './types';
 
+// API Services
+import { 
+  authService, 
+  taskService, 
+  scheduleService, 
+  subjectService, 
+  studySessionService, 
+  statisticsService 
+} from './services';
+
 export function App() {
-  // Authentication status: defaults to false so initial visitors see the Welcome & Login flow
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Authentication status
+  const [isLoggedIn, setIsLoggedIn] = useState(authService.isLoggedIn());
 
   // Active navigation tab
   const [activeTab, setActiveTab] = useState('home');
@@ -60,40 +70,125 @@ export function App() {
   const [scheduleDayTarget, setScheduleDayTarget] = useState<'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat'>('Senin');
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
+  // Check persistent login on load
+  useEffect(() => {
+    async function checkAuth() {
+      if (authService.isLoggedIn()) {
+        const me = await authService.getMe();
+        if (me) {
+          setUser(prev => ({
+            ...prev,
+            name: me.name,
+            email: me.email,
+            grade: me.grade || prev.grade,
+            school: me.school || prev.school,
+          }));
+          setIsLoggedIn(true);
+        }
+      }
+    }
+    checkAuth();
+  }, []);
+
+  // Load real data from backend API when authenticated
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let isMounted = true;
+    async function fetchBackendData() {
+      try {
+        const [apiTasks, apiSchedules, apiSubjects, apiSessions, apiStats] = await Promise.all([
+          taskService.getTasks(),
+          scheduleService.getSchedules(),
+          subjectService.getSubjects(),
+          studySessionService.getRecommendations(),
+          statisticsService.getOverview(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (apiTasks && apiTasks.length > 0) {
+          setTasks(apiTasks);
+        }
+        if (apiSchedules && apiSchedules.length > 0) {
+          setSchedule(apiSchedules);
+        }
+        if (apiSubjects && apiSubjects.length > 0) {
+          setSubjects(apiSubjects);
+        }
+        if (apiSessions && apiSessions.length > 0) {
+          setSessions(apiSessions);
+        }
+        if (apiStats) {
+          setUser(prev => ({
+            ...prev,
+            streakDays: apiStats.streakDays,
+            totalStudyHours: apiStats.totalStudyHours,
+            completedTasksThisWeek: apiStats.completedTasksThisWeek,
+          }));
+        }
+      } catch (err) {
+        console.warn('Gagal memuat live data dari Stoodify Backend API:', err);
+      }
+    }
+
+    fetchBackendData();
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
+
   // Urgent task count for badge
   const urgentCount = tasks.filter(t => t.status !== 'completed' && (t.priorityLevel === 'critical' || t.priorityLevel === 'high')).length;
 
   // Handlers
-  const handleToggleTaskComplete = (taskId: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === taskId) {
-        const nextStatus = t.status === 'completed' ? 'in_progress' : 'completed';
-        return {
-          ...t,
-          status: nextStatus,
-        };
-      }
-      return t;
-    }));
+  const handleToggleTaskComplete = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const nextStatus = task.status === 'completed' ? 'in_progress' : 'completed';
+    setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: nextStatus } : t)));
 
     if (selectedTask && selectedTask.id === taskId) {
-      setSelectedTask(prev => prev ? {
-        ...prev,
-        status: prev.status === 'completed' ? 'in_progress' : 'completed',
-      } : null);
+      setSelectedTask(prev => (prev ? { ...prev, status: nextStatus } : null));
+    }
+
+    try {
+      await taskService.toggleComplete(task);
+    } catch (e) {
+      console.warn('Gagal sinkron status tugas ke backend:', e);
     }
   };
 
-  const handleAddTask = (newTask: Omit<Task, 'id'>) => {
-    const id = `task-${Date.now()}`;
-    const created: Task = { ...newTask, id };
-    setTasks([created, ...tasks]);
-    alert(`Tugas "${created.title}" berhasil ditambahkan dan dijadwalkan oleh AI! ✨`);
+  const handleAddTask = async (newTask: Omit<Task, 'id'>) => {
+    try {
+      const created = await taskService.createTask({
+        title: newTask.title,
+        subject: newTask.subject,
+        deadline: newTask.deadline,
+        difficulty: newTask.difficulty,
+        estimatedDurationMinutes: newTask.estimatedDurationMinutes,
+        taskType: newTask.taskType,
+        notes: newTask.notes,
+      });
+      setTasks(prev => [created, ...prev]);
+      alert(`Tugas "${created.title}" berhasil ditambahkan dan disinkronkan ke database backend! ✨`);
+    } catch {
+      const id = `task-${Date.now()}`;
+      const created: Task = { ...newTask, id };
+      setTasks(prev => [created, ...prev]);
+      alert(`Tugas "${created.title}" berhasil ditambahkan! ✨`);
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     setTasks(prev => prev.filter(t => t.id !== taskId));
     setSelectedTask(null);
+    try {
+      await taskService.deleteTask(taskId);
+    } catch (e) {
+      console.warn('Gagal menghapus tugas dari backend:', e);
+    }
   };
 
   const handleOpenFocusTimer = (task?: Task, durationMinutes?: number) => {
@@ -116,8 +211,16 @@ export function App() {
     }));
   };
 
-  const handleReschedule = () => {
-    alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.');
+  const handleReschedule = async () => {
+    try {
+      const updated = await studySessionService.reschedule();
+      if (updated && updated.length > 0) {
+        setSessions(updated);
+      }
+      alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dari model AI backend.');
+    } catch {
+      alert('⚡ AI Adaptive Rescheduling Aktif!\n\nUrutan prioritas belajar telah diperbarui dengan aman. Tugas Kimia tetap diprioritaskan pada antrean nomor 1.');
+    }
   };
 
   const handleMarkAllNotificationsRead = () => {
@@ -127,41 +230,47 @@ export function App() {
   // ==========================================
   // SUBJECT CRUD HANDLERS
   // ==========================================
-  const handleAddSubject = (newSub: Omit<Subject, 'id' | 'totalTasks'>) => {
-    const id = `sub-${Date.now()}`;
-    const created: Subject = { ...newSub, id, totalTasks: 0 };
-    setSubjects(prev => [...prev, created]);
-    alert(`Mata pelajaran "${created.name}" berhasil ditambahkan! ✨\nSekarang bisa dipilih untuk fitur Jadwal Sekolah dan Tugas.`);
+  const handleAddSubject = async (newSub: Omit<Subject, 'id' | 'totalTasks'>) => {
+    try {
+      const created = await subjectService.createSubject(newSub);
+      setSubjects(prev => [...prev, created]);
+      alert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database! ✨`);
+    } catch {
+      const id = `sub-${Date.now()}`;
+      const created: Subject = { ...newSub, id, totalTasks: 0 };
+      setSubjects(prev => [...prev, created]);
+      alert(`Mata pelajaran "${created.name}" berhasil ditambahkan! ✨`);
+    }
   };
 
-  const handleUpdateSubject = (id: string, updated: Partial<Subject>) => {
+  const handleUpdateSubject = async (id: string, updated: Partial<Subject>) => {
     const oldSubject = subjects.find(s => s.id === id);
-    setSubjects(prev => prev.map(s => s.id === id ? { ...s, ...updated } : s));
+    setSubjects(prev => prev.map(s => (s.id === id ? { ...s, ...updated } : s)));
 
-    // Cascade update to matching tasks and schedule
     if (oldSubject) {
       const oldName = oldSubject.name;
       const newName = updated.name || oldName;
       const newColor = updated.color || oldSubject.color;
 
-      setTasks(prev => prev.map(t => t.subject === oldName ? {
-        ...t,
-        subject: newName,
-        subjectColor: newColor,
-      } : t));
+      setTasks(prev => prev.map(t => (t.subject === oldName ? { ...t, subject: newName, subjectColor: newColor } : t)));
+      setSchedule(prev => prev.map(sch => (sch.subjectName === oldName ? { ...sch, subjectName: newName, subjectColor: newColor, teacher: updated.teacher || sch.teacher } : sch)));
+    }
 
-      setSchedule(prev => prev.map(sch => sch.subjectName === oldName ? {
-        ...sch,
-        subjectName: newName,
-        subjectColor: newColor,
-        teacher: updated.teacher || sch.teacher,
-      } : sch));
+    try {
+      await subjectService.updateSubject(id, updated);
+    } catch (e) {
+      console.warn('Gagal update subject di backend:', e);
     }
   };
 
-  const handleDeleteSubject = (id: string) => {
+  const handleDeleteSubject = async (id: string) => {
     const subjectToDelete = subjects.find(s => s.id === id);
     setSubjects(prev => prev.filter(s => s.id !== id));
+    try {
+      await subjectService.deleteSubject(id);
+    } catch (e) {
+      console.warn('Gagal menghapus subject di backend:', e);
+    }
     if (subjectToDelete) {
       alert(`Mata pelajaran "${subjectToDelete.name}" telah dihapus.`);
     }
@@ -170,20 +279,40 @@ export function App() {
   // ==========================================
   // SCHEDULE HANDLERS
   // ==========================================
-  const handleAddScheduleItem = (newItem: Omit<ScheduleItem, 'id'>) => {
-    const id = `sch-${Date.now()}`;
-    const created: ScheduleItem = { ...newItem, id };
-    setSchedule(prev => [...prev, created]);
-    alert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal hari ${created.day}! 📅`);
+  const handleAddScheduleItem = async (newItem: Omit<ScheduleItem, 'id'>) => {
+    try {
+      const created = await scheduleService.createSchedule(newItem);
+      setSchedule(prev => [...prev, created]);
+      alert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal database! 📅`);
+    } catch (err: any) {
+      if (err.status === 409) {
+        alert('⚠️ Terdeteksi konflik jadwal! Jam pelajaran bentrok dengan jadwal lain pada hari yang sama.');
+        return;
+      }
+      const id = `sch-${Date.now()}`;
+      const created: ScheduleItem = { ...newItem, id };
+      setSchedule(prev => [...prev, created]);
+      alert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal hari ${created.day}! 📅`);
+    }
   };
 
-  const handleDeleteScheduleItem = (id: string) => {
+  const handleDeleteScheduleItem = async (id: string) => {
     setSchedule(prev => prev.filter(s => s.id !== id));
+    try {
+      await scheduleService.deleteSchedule(id);
+    } catch (e) {
+      console.warn('Gagal menghapus jadwal di backend:', e);
+    }
   };
 
   const handleOpenAddSchedule = (day: 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat') => {
     setScheduleDayTarget(day);
     setIsAddScheduleOpen(true);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setIsLoggedIn(false);
   };
 
   return (
@@ -284,7 +413,7 @@ export function App() {
                 onOpenProModal={() => setIsProModalOpen(true)}
                 onOpenHelp={() => alert('Pusat Bantuan Stoodify: Hubungi tim via kontak support atau baca panduan AI.')}
                 onOpenManageSubjects={() => setIsManageSubjectsOpen(true)}
-                onLogout={() => setIsLoggedIn(false)}
+                onLogout={handleLogout}
               />
             )}
           </>

@@ -5,9 +5,11 @@ import {
   EyeOff, 
   Check, 
   Sparkles, 
-  Info 
+  Info,
+  Loader2
 } from 'lucide-react';
 import stoodifyLogo from '../../assets/logo_stoodify.png';
+import { authService } from '../../services/authService';
 
 interface AuthViewProps {
   onLoginSuccess: (name: string, email: string) => void;
@@ -44,6 +46,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
 
+  // Status API loading & error
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // Login form state
   const [loginEmail, setLoginEmail] = useState('naufal.pratama@student.id');
   const [loginPassword, setLoginPassword] = useState('password123');
@@ -54,18 +60,53 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
   const [regPassword, setRegPassword] = useState('password123');
   const [regConfirmPassword, setRegConfirmPassword] = useState('password123');
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess('Naufal Pratama', loginEmail);
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const user = await authService.login(loginEmail, loginPassword);
+      onLoginSuccess(user.name, user.email);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal masuk. Periksa email dan password.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess(regName || 'Siswa SMA', regEmail || 'siswa@stoodify.id');
+    if (regPassword !== regConfirmPassword) {
+      setErrorMessage('Konfirmasi kata sandi tidak cocok.');
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const user = await authService.register({
+        name: regName,
+        email: regEmail,
+        password: regPassword,
+      });
+      onLoginSuccess(user.name, user.email);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal mendaftar akun.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickDemoLogin = () => {
-    onLoginSuccess('Naufal Pratama', 'naufal.pratama@student.id');
+  const handleQuickDemoLogin = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const user = await authService.loginDemo();
+      onLoginSuccess(user.name, user.email);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal terhubung ke backend demo.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,7 +155,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
             <div className="space-y-3 pt-6 w-full">
               <button
                 type="button"
-                onClick={() => setMode('login')}
+                onClick={() => { setMode('login'); setErrorMessage(null); }}
                 className="w-full py-3.5 px-6 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-lg shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
               >
                 Masuk ke Akun
@@ -122,7 +163,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
 
               <button
                 type="button"
-                onClick={() => setMode('register')}
+                onClick={() => { setMode('register'); setErrorMessage(null); }}
                 className="w-full py-3.5 px-6 rounded-full text-[#1E50FF] font-semibold text-xs sm:text-sm tracking-wide bg-white border border-[#1E50FF] hover:bg-blue-50/50 active:scale-98 transition-all cursor-pointer text-center"
               >
                 Daftar Akun Baru
@@ -130,10 +171,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
 
               <button
                 type="button"
+                disabled={isLoading}
                 onClick={handleQuickDemoLogin}
-                className="w-full text-center text-[11px] font-semibold text-slate-400 hover:text-blue-600 transition-colors pt-1 cursor-pointer block"
+                className="w-full text-center text-[11px] font-semibold text-slate-400 hover:text-blue-600 transition-colors pt-1 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Coba Mode Demo (Naufal Pratama)
+                {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" /> : null}
+                <span>Coba Mode Demo (Naufal Pratama - Live API)</span>
               </button>
             </div>
           </div>
@@ -152,7 +195,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               <div className="flex items-center gap-2.5">
                 <button 
                   type="button" 
-                  onClick={() => setMode('welcome')} 
+                  onClick={() => { setMode('welcome'); setErrorMessage(null); }} 
                   className="p-1 -ml-1 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
                   aria-label="Kembali ke halaman awal"
                   title="Kembali ke halaman awal"
@@ -186,12 +229,20 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
 
+            {/* Error Banner */}
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs flex items-center gap-2">
+                <Info className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             {/* Sign In Form */}
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               {/* Field: Email / Username */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Email atau Nama Pengguna
+                  Email Siswa
                 </label>
                 <input
                   type="text"
@@ -232,9 +283,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
+                  disabled={isLoading}
+                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center flex items-center justify-center gap-2"
                 >
-                  Masuk Sekarang
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                  <span>{isLoading ? 'Menghubungkan ke Backend...' : 'Masuk Sekarang'}</span>
                 </button>
               </div>
 
@@ -261,21 +314,27 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 {/* Continue with Google */}
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={handleQuickDemoLogin}
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-slate-700 font-semibold text-xs py-3 px-4 rounded-2xl border border-slate-200/60 flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
                   <GoogleIcon />
-                  <span>Lanjutkan dengan Google</span>
+                  <span>Lanjutkan dengan Akun Siswa</span>
                 </button>
 
                 {/* 1-Click Demo Login */}
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={handleQuickDemoLogin}
                   className="w-full bg-[#F5F7FA] hover:bg-[#EEF2F6] active:scale-98 text-[#1E50FF] font-semibold text-xs py-3 px-4 rounded-2xl border border-blue-200/60 flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 fill-[#1E50FF]" />
-                  <span>Masuk Cepat Mode Demo</span>
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#1E50FF]" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 fill-[#1E50FF]" />
+                  )}
+                  <span>Masuk Cepat Mode Demo (Live API)</span>
                 </button>
               </div>
             </form>
@@ -287,7 +346,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               Belum punya akun?{' '}
               <button
                 type="button"
-                onClick={() => setMode('register')}
+                onClick={() => { setMode('register'); setErrorMessage(null); }}
                 className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
                 Daftar sekarang
@@ -311,7 +370,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
             <div className="flex items-center gap-2 mb-5">
               <button
                 type="button"
-                onClick={() => setMode('login')}
+                onClick={() => { setMode('login'); setErrorMessage(null); }}
                 className="p-1 -ml-1 text-slate-700 hover:text-[#1E50FF] cursor-pointer transition-colors"
                 aria-label="Kembali ke halaman masuk"
               >
@@ -326,6 +385,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
                 </p>
               </div>
             </div>
+
+            {/* Error Banner */}
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs flex items-center gap-2">
+                <Info className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
             {/* Register Form */}
             <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
@@ -440,9 +507,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center"
+                  disabled={isLoading}
+                  className="w-full py-3.5 rounded-full text-white font-semibold text-xs sm:text-sm tracking-wide bg-gradient-to-r from-[#1746E0] via-[#1E50FF] to-[#143DC0] shadow-md shadow-blue-500/25 hover:opacity-95 active:scale-98 transition-all cursor-pointer text-center flex items-center justify-center gap-2"
                 >
-                  Daftar Akun Sekarang
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin text-white" />}
+                  <span>{isLoading ? 'Mendaftarkan Akun...' : 'Daftar Akun Sekarang'}</span>
                 </button>
               </div>
             </form>
@@ -454,7 +523,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess }) => {
               Sudah memiliki akun?{' '}
               <button
                 type="button"
-                onClick={() => setMode('login')}
+                onClick={() => { setMode('login'); setErrorMessage(null); }}
                 className="font-bold text-[#1E50FF] hover:underline cursor-pointer ml-0.5"
               >
                 Masuk
