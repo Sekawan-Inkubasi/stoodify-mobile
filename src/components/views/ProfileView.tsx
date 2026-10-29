@@ -4,8 +4,6 @@ import {
   Settings, 
   Clock, 
   BookOpen, 
-  Sparkles, 
-  Coffee, 
   HelpCircle, 
   LogOut, 
   ChevronRight, 
@@ -18,7 +16,6 @@ import { UserProfile } from '../../types';
 interface ProfileViewProps {
   user: UserProfile;
   subjectsCount: number;
-  onOpenPreferences: () => void;
   onOpenProModal: () => void;
   onOpenHelp: () => void;
   onOpenManageSubjects: () => void;
@@ -28,7 +25,6 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   user,
   subjectsCount,
-  onOpenPreferences,
   onOpenProModal,
   onOpenHelp,
   onOpenManageSubjects,
@@ -125,40 +121,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       {/* 4. SETTINGS MENU LIST */}
       <div className="bg-white rounded-3xl shadow-[0_4px_20px_rgba(20,40,90,0.04)] border border-white divide-y divide-slate-50 overflow-hidden">
         
-        {/* Preferensi Belajar AI */}
-        <button
-          onClick={onOpenPreferences}
-          className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/70 transition-colors cursor-pointer group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0062FF] flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800">Preferensi Belajar AI</h4>
-              <p className="text-[10px] text-slate-500">Jam mulai belajar malam, durasi pomodoro</p>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#0062FF] group-hover:translate-x-0.5 transition-all" />
-        </button>
-
-        {/* Blokir Jam Rutin & Ekskul */}
-        <button
-          onClick={onOpenPreferences}
-          className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/70 transition-colors cursor-pointer group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Coffee className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-800">Jam Rutin & Waktu Luang</h4>
-              <p className="text-[10px] text-slate-500">Blokir waktu les, ekstrakurikuler, dan istirahat</p>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#0062FF] group-hover:translate-x-0.5 transition-all" />
-        </button>
-
         {/* Mata Pelajaran */}
         <button
           onClick={onOpenManageSubjects}

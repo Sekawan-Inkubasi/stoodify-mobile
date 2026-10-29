@@ -15,7 +15,6 @@ import { TaskDetailModal } from './components/modals/TaskDetailModal';
 import { FocusTimerModal } from './components/modals/FocusTimerModal';
 import { MaterialPredictionModal } from './components/modals/MaterialPredictionModal';
 import { NotificationsModal } from './components/modals/NotificationsModal';
-import { PreferencesModal } from './components/modals/PreferencesModal';
 import { ProPaywallModal } from './components/modals/ProPaywallModal';
 import { ManageSubjectsModal } from './components/modals/ManageSubjectsModal';
 import { AddScheduleModal } from './components/modals/AddScheduleModal';
@@ -28,10 +27,9 @@ import {
   initialSessions, 
   mockSchedule, 
   mockPredictions, 
-  mockNotifications, 
-  defaultPreferences 
+  mockNotifications 
 } from './data/mockData';
-import { Task, AISession, StudyPreferences, Subject, ScheduleItem } from './types';
+import { Task, AISession, Subject, ScheduleItem } from './types';
 
 export function App() {
   // Authentication status: defaults to false so initial visitors see the Welcome & Login flow
@@ -46,7 +44,6 @@ export function App() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [sessions, setSessions] = useState<AISession[]>(initialSessions);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(mockSchedule);
-  const [preferences, setPreferences] = useState<StudyPreferences>(defaultPreferences);
   const [notifications, setNotifications] = useState(mockNotifications);
 
   // Modal visibility states
@@ -57,7 +54,6 @@ export function App() {
   const [focusDuration, setFocusDuration] = useState<number>(45);
   const [isPredictionsOpen, setIsPredictionsOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isProModalOpen, setIsProModalOpen] = useState(false);
   const [isManageSubjectsOpen, setIsManageSubjectsOpen] = useState(false);
   const [isAddScheduleOpen, setIsAddScheduleOpen] = useState(false);
@@ -285,7 +281,6 @@ export function App() {
               <ProfileView
                 user={user}
                 subjectsCount={subjects.length}
-                onOpenPreferences={() => setIsPreferencesOpen(true)}
                 onOpenProModal={() => setIsProModalOpen(true)}
                 onOpenHelp={() => alert('Pusat Bantuan Stoodify: Hubungi tim via kontak support atau baca panduan AI.')}
                 onOpenManageSubjects={() => setIsManageSubjectsOpen(true)}
@@ -333,13 +328,6 @@ export function App() {
         onClose={() => setIsNotificationsOpen(false)}
         notifications={notifications}
         onMarkAllRead={handleMarkAllNotificationsRead}
-      />
-
-      <PreferencesModal
-        isOpen={isPreferencesOpen}
-        onClose={() => setIsPreferencesOpen(false)}
-        preferences={preferences}
-        onSavePreferences={setPreferences}
       />
 
       <ProPaywallModal
