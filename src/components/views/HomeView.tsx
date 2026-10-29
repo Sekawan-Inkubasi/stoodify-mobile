@@ -390,13 +390,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 pt-1">
-            <img 
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" 
-              alt="Mentor"
-              className="w-5 h-5 rounded-full object-cover ring-1 ring-white/60" 
-            />
+            <div className="w-5 h-5 rounded-full bg-white/30 flex items-center justify-center text-[10px] font-medium">
+              ✨
+            </div>
             <span className="text-[11px] font-medium text-white/90 truncate">
-              oleh Pak Budi
+              oleh Stoodify AI
             </span>
           </div>
         </div>

@@ -257,8 +257,8 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
       <div
         ref={tabRef}
         style={{ top: `${yPercent}%` }}
-        className={`absolute right-0 -translate-y-1/2 z-40 select-none transition-transform duration-200 ${
-          isOpen ? 'opacity-0 pointer-events-none translate-x-full' : 'opacity-100'
+        className={`absolute right-0 -translate-y-1/2 z-40 select-none tab-smooth ${
+          isOpen ? 'opacity-0 pointer-events-none translate-x-4 scale-95' : 'opacity-100 translate-x-0 scale-100'
         }`}
       >
         <button
@@ -301,8 +301,8 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
       {/* Clean, authentic Stoodify layout without AI slop         */}
       {/* ======================================================== */}
       <div
-        className={`absolute inset-0 z-50 overflow-hidden transition-all duration-300 ${
-          isOpen ? 'pointer-events-auto visible opacity-100' : 'pointer-events-none invisible opacity-0'
+        className={`absolute inset-0 z-50 overflow-hidden ${
+          isOpen ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
       >
         {/* Semi-transparent Dimmed Backdrop Overlay (Clicking on left outside closes drawer) */}
@@ -318,7 +318,9 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
             e.stopPropagation();
             onClose();
           }}
-          className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity duration-300 cursor-pointer"
+          className={`absolute inset-0 bg-slate-950/45 backdrop-blur-[3px] backdrop-smooth cursor-pointer ${
+            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
         />
 
         {/* Slide-over Drawer Panel */}
@@ -327,8 +329,8 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
           aria-label="Stoodify AI Assistant"
           aria-modal="true"
           onClick={(e) => e.stopPropagation()}
-          className={`absolute inset-y-0 right-0 w-[90%] sm:w-[365px] bg-white shadow-[-16px_0_40px_rgba(20,40,90,0.22)] border-l border-slate-200/80 flex flex-col z-50 transform transition-transform duration-300 ease-out ${
-            isOpen ? 'translate-x-0' : 'translate-x-full'
+          className={`absolute inset-y-0 right-0 w-[90%] sm:w-[365px] bg-white border-l border-slate-200/80 flex flex-col z-50 drawer-panel-smooth ${
+            isOpen ? 'translate-x-0 shadow-[-20px_0_50px_rgba(15,23,42,0.28)] pointer-events-auto' : 'translate-x-full shadow-none pointer-events-none'
           }`}
         >
           {/* DRAWER TOP HEADER (Stoodify Royal Electric Blue Theme with Back Arrow) */}
@@ -439,7 +441,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-2 animate-message ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.sender === 'ai' && (
                   <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#0062FF] to-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">

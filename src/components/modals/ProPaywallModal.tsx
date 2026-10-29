@@ -23,8 +23,8 @@ export const ProPaywallModal: React.FC<ProPaywallModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full max-w-md bg-white rounded-t-[38px] sm:rounded-[38px] max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-6 duration-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm backdrop-smooth flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="w-full max-w-md bg-white rounded-t-[38px] sm:rounded-[38px] max-h-[92vh] flex flex-col shadow-2xl modal-enter-smooth overflow-hidden">
         
         {/* Top Banner with Crown */}
         <div className="bg-gradient-to-br from-[#0062FF] via-indigo-600 to-slate-900 p-6 text-white text-center relative">

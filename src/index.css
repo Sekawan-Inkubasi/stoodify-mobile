@@ -81,3 +81,51 @@
 .animate-aura {
   animation: aura-spin 16s linear infinite;
 }
+
+/* iOS / High-End Native Fluid Spring & Easing Curves */
+.drawer-panel-smooth {
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 420ms ease;
+  will-change: transform;
+}
+
+.backdrop-smooth {
+  transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 360ms ease;
+  will-change: opacity, backdrop-filter;
+}
+
+.tab-smooth {
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 280ms ease, box-shadow 300ms ease;
+  will-change: transform, opacity;
+}
+
+@keyframes slide-up-smooth {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.975);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-enter-smooth {
+  animation: slide-up-smooth 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Message Bubble Fade-in */
+@keyframes message-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-message {
+  animation: message-in 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

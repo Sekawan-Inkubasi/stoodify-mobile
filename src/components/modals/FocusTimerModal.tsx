@@ -71,8 +71,8 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
   const progressPercent = ((totalSeconds - secondsRemaining) / totalSeconds) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-white rounded-[38px] p-6 shadow-2xl relative flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md backdrop-smooth flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-white rounded-[38px] p-6 shadow-2xl relative flex flex-col items-center text-center modal-enter-smooth">
         
         {/* Close button */}
         <button
