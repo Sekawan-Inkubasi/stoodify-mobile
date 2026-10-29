@@ -348,36 +348,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <strong className="font-semibold text-slate-800">Pertimbangan AI:</strong> {todaySession.reason}
           </p>
 
-          {/* Action Row: Blue Pill Button + Stacked Avatars */}
-          <div className="flex items-center justify-between pt-0.5">
+          {/* Action Row: Blue Full-width Pill Button */}
+          <div className="pt-0.5">
             <button
               onClick={() => {
                 const targetTask = tasks.find(t => t.id === todaySession.taskId);
                 onOpenFocusTimer(targetTask);
               }}
-              className="bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs px-5 py-2.5 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center gap-1.5"
+              className="w-full bg-[#0062FF] hover:bg-blue-600 active:scale-95 text-white font-semibold text-xs py-3 rounded-full shadow-md shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <span>Mulai Belajar Sekarang</span>
             </button>
-
-            {/* Classmate Avatars */}
-            <div className="flex items-center -space-x-2">
-              <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" 
-                alt="Friend"
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-white shadow-xs" 
-              />
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" 
-                alt="Friend"
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-white shadow-xs" 
-              />
-              <img 
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" 
-                alt="Friend"
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-white shadow-xs" 
-              />
-            </div>
           </div>
 
         </div>
