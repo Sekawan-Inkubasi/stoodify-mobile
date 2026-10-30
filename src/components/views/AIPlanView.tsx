@@ -16,6 +16,7 @@ import {
   ArrowUpRight 
 } from 'lucide-react';
 import { AISession, Task } from '../../types';
+import { AIPlanSkeleton } from '../layout/SkeletonLoaders';
 
 interface AIPlanViewProps {
   sessions: AISession[];
@@ -44,6 +45,10 @@ export const AIPlanView: React.FC<AIPlanViewProps> = ({
     if (filterMode === 'upcoming') return !session.sessionDate.toLowerCase().includes('hari ini');
     return true;
   });
+
+  if (isLoading) {
+    return <AIPlanSkeleton />;
+  }
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">

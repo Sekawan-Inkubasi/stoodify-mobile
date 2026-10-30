@@ -18,6 +18,8 @@ import {
   Calendar
 } from 'lucide-react';
 import { UserProfile, Task, AISession, MaterialPrediction } from '../../types';
+import stoodifyLogo from '../../assets/logo_stoodify.png';
+import { HomeSkeleton } from '../layout/SkeletonLoaders';
 
 interface HomeViewProps {
   user: UserProfile;
@@ -59,6 +61,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const urgentTasks = pendingTasks.slice(0, 3);
   const todaySession = sessions[0];
   const topPrediction = predictions[0];
+
+  if (isLoading) {
+    return <HomeSkeleton />;
+  }
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
@@ -452,7 +458,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex items-center gap-2 pt-1">
             <div className="w-5 h-5 rounded-full bg-white/90 p-0.5 flex items-center justify-center shadow-xs overflow-hidden">
               <img 
-                src="/logo_stoodify.png" 
+                src={stoodifyLogo} 
                 alt="Stoodify" 
                 className="w-full h-full object-contain" 
               />
@@ -486,7 +492,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex items-center gap-2 pt-1">
             <div className="w-5 h-5 rounded-full bg-white/90 p-0.5 flex items-center justify-center shadow-xs overflow-hidden">
               <img 
-                src="/logo_stoodify.png" 
+                src={stoodifyLogo} 
                 alt="Stoodify" 
                 className="w-full h-full object-contain" 
               />

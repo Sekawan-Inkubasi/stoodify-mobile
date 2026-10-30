@@ -12,10 +12,12 @@ import {
   Crown
 } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { ProfileSkeleton } from '../layout/SkeletonLoaders';
 
 interface ProfileViewProps {
   user: UserProfile;
   subjectsCount: number;
+  isLoading?: boolean;
   onOpenProModal: () => void;
   onOpenHelp: () => void;
   onOpenManageSubjects: () => void;
@@ -25,11 +27,16 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   user,
   subjectsCount,
+  isLoading,
   onOpenProModal,
   onOpenHelp,
   onOpenManageSubjects,
   onLogout,
 }) => {
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
+
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
       

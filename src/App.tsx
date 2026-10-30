@@ -454,6 +454,7 @@ export function App() {
               <ProfileView
                 user={user}
                 subjectsCount={subjects.length}
+                isLoading={isLoadingData}
                 onOpenProModal={() => setIsProModalOpen(true)}
                 onOpenHelp={() => showAlert('Hubungi tim kami via kontak support sekolah atau baca panduan asisten AI Stoodify untuk tips belajar efektif.', 'Pusat Bantuan Stoodify', 'info')}
                 onOpenManageSubjects={() => setIsManageSubjectsOpen(true)}

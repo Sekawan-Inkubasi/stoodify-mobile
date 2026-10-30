@@ -7,3 +7,4 @@ dist
 !.env.example
 .omo
 anti-slop
+.playwright-mcp

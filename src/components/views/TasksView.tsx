@@ -11,6 +11,7 @@ import {
   Layers
 } from 'lucide-react';
 import { Task, Subject } from '../../types';
+import { TasksSkeleton } from '../layout/SkeletonLoaders';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -59,6 +60,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
     return true;
   });
+
+  if (isLoading) {
+    return <TasksSkeleton />;
+  }
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">

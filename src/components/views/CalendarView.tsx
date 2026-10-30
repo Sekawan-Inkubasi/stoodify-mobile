@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { ScheduleItem, AISession, Task, Subject } from '../../types';
 import { useDialog } from '../../context/DialogContext';
+import { CalendarSkeleton } from '../layout/SkeletonLoaders';
 
 interface CalendarViewProps {
   schedule: ScheduleItem[];
@@ -42,6 +43,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'integrated' | 'timetable'>('integrated');
 
   const daySchedule = schedule.filter(s => s.day === selectedDay);
+
+  if (isLoading) {
+    return <CalendarSkeleton />;
+  }
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
