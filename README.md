@@ -26,12 +26,12 @@ my-projects/
 Aplikasi ini telah terintegrasi langsung dengan backend API Stoodify ([`stoodify-backend`](file:///home/naufal/Documents/my-projects/inkubasi-journey/main-arch/stoodify-backend/)). Seluruh layer pemanggilan API modular berada di direktori **[`src/services/`](file:///home/naufal/Documents/my-projects/inkubasi-journey/main-arch/stoodify-mobile/src/services/)**:
 
 - **`apiClient.ts`**: Client HTTP terpusat dengan injeksi Bearer Token, base URL dinamis (`VITE_API_BASE_URL` atau default `http://localhost:8080/api`), dan penanganan auto-refresh token (401 handler).
-- **`authService.ts`**: Autentikasi siswa (Login, Registrasi akun, Mode Demo instan, dan pengambilan data profil).
+- **`authService.ts`**: Autentikasi siswa (Login, Registrasi akun, Mode Demo instan, pengambilan data profil, dan upload foto avatar).
 - **`taskService.ts`**: Pengambilan tugas dari database, pembuatan tugas baru dengan perhitungan skor prioritas AI, update progress belajar, dan penghapusan tugas.
-- **`scheduleService.ts`**: Sinkronisasi jadwal pelajaran sekolah mingguan dengan deteksi konflik jam belajar (409 Conflict).
+- **`scheduleService.ts`**: Sinkronisasi jadwal pelajaran sekolah mingguan dengan deteksi konflik jam belajar (409 Conflict) serta touch-friendly delete action.
 - **`subjectService.ts`**: Manajemen mata pelajaran sekolah (CRUD).
 - **`studySessionService.ts`**: Rekomendasi sesi belajar mandiri oleh AI dan fitur *Adaptive Rescheduling*.
-- **`statisticsService.ts`**: Ringkasan data belajar (streak harian, total jam belajar, tugas terselesaikan).
+- **`statisticsService.ts`**: Ringkasan data belajar (streak harian dengan toleransi akhir pekan, total jam belajar, tugas terselesaikan).
 
 ---
 
