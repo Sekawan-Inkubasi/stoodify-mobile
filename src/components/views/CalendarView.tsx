@@ -186,8 +186,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   </div>
                 </div>
 
-                {/* Delete button on right */}
+                {/* Delete button on right - touch accessible */}
                 <button
+                  type="button"
                   onClick={() => {
                     showConfirm({
                       title: 'Hapus dari Jadwal',
@@ -200,8 +201,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       },
                     });
                   }}
-                  className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 transition-opacity p-1.5 rounded-full hover:bg-slate-100 cursor-pointer"
-                  title="Hapus dari Jadwal"
+                  className="text-slate-400 hover:text-rose-600 active:text-rose-600 p-2 rounded-full hover:bg-slate-100 active:bg-slate-100 active:scale-95 transition-all cursor-pointer shrink-0"
+                  aria-label={`Hapus ${item.subjectName} dari Jadwal`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

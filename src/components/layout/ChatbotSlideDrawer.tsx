@@ -54,7 +54,7 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
     {
       id: 'welcome-1',
       sender: 'ai',
-      text: `Halo ${studentName}! 👋 Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan urutan prioritas belajarmu hari ini?`,
+      text: `Halo ${studentName}! Saya **Stoodify AI Assistant**.\n\nAda materi pelajaran yang ingin dibahas, tugas yang sulit, atau perlu saya sesuaikan urutan prioritas belajarmu hari ini?`,
       time: 'Baru saja',
     },
   ]);
@@ -158,11 +158,11 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
   }, [isDragging, handleMoveDrag, handleEndDrag]);
 
   const quickPrompts = [
-    { label: '⚡ Susun Prioritas', prompt: 'Saya ada kegiatan tambahan, tolong sesuaikan urutan prioritas belajarku.' },
-    { label: '🔮 Prediksi Soal Kimia', prompt: 'Apa topik ujian Kimia yang paling sering keluar untuk materi Titrasi Asam Basa?' },
-    { label: '📊 Ringkasan Beban Belajar', prompt: 'Bisa berikan ringkasan progres dan tugas prioritasku pekan ini?' },
-    { label: '💡 Tips Mode Fokus 45 Menit', prompt: 'Bagaimana cara menjaga fokus 45 menit tanpa tergiur buka media sosial?' },
-    { label: '📝 Bahas PR Titrasi', prompt: 'Jelaskan cara mencari titik ekivalen pada kurva titrasi asam basa secara singkat.' },
+    { label: 'Susun Prioritas', prompt: 'Saya ada kegiatan tambahan, tolong sesuaikan urutan prioritas belajarku.' },
+    { label: 'Prediksi Soal Kimia', prompt: 'Apa topik ujian Kimia yang paling sering keluar untuk materi Titrasi Asam Basa?' },
+    { label: 'Ringkasan Beban Belajar', prompt: 'Bisa berikan ringkasan progres dan tugas prioritasku pekan ini?' },
+    { label: 'Tips Mode Fokus 45 Menit', prompt: 'Bagaimana cara menjaga fokus 45 menit tanpa tergiur buka media sosial?' },
+    { label: 'Bahas PR Titrasi', prompt: 'Jelaskan cara mencari titik ekivalen pada kurva titrasi asam basa secara singkat.' },
   ];
 
   const handleSendMessage = (textToSend?: string) => {
@@ -190,21 +190,21 @@ export const ChatbotSlideDrawer: React.FC<ChatbotSlideDrawerProps> = ({
       if (lower.includes('susun') || lower.includes('jadwal') || lower.includes('les') || lower.includes('reschedule')) {
         if (sessions.length > 0) {
           const listStr = sessions.slice(0, 2).map((s, i) => `• **Prioritas #${i + 1}:** ${s.taskTitle} (${s.durationMinutes} Menit Fokus)`).join('\n');
-          replyText = `⚡ **AI Adaptive Rescheduler Aktif!**\n\nUrutan prioritas belajarmu saat ini:\n${listStr}\n\nKlik tombol di bawah untuk menyusun ulang antrean prioritas belajar dari server AI.`;
+          replyText = `**AI Adaptive Rescheduler Aktif!**\n\nUrutan prioritas belajarmu saat ini:\n${listStr}\n\nKlik tombol di bawah untuk menyusun ulang antrean prioritas belajar dari server AI.`;
         } else {
-          replyText = '⚡ **AI Adaptive Rescheduler Aktif!**\n\nBelum ada sesi tugas aktif yang terjadwal. Tambahkan tugas terlebih dahulu agar AI dapat menyusun urutan belajarmu.';
+          replyText = '**AI Adaptive Rescheduler Aktif!**\n\nBelum ada sesi tugas aktif yang terjadwal. Tambahkan tugas terlebih dahulu agar AI dapat menyusun urutan belajarmu.';
         }
         actionType = 'reschedule';
-        actionLabel = '⚡ Jalankan Adaptive Rescheduling';
+        actionLabel = 'Jalankan Adaptive Rescheduling';
       } else if (lower.includes('ringkasan') || lower.includes('beban') || lower.includes('progres') || lower.includes('tugas')) {
         const pendingCount = tasks.filter((t) => t.status !== 'completed').length;
         const streak = user?.streakDays || 0;
         const hours = user?.totalStudyHours || 0;
-        replyText = `📊 **Ringkasan Beban Belajar Siswa:**\n\n• Sisa Tugas Aktif: **${pendingCount} tugas**\n• Streak Aktif: **🔥 ${streak} Hari**\n• Total Waktu Fokus: **⏱️ ${hours} Jam**\n\n${pendingCount > 0 ? 'Fokus tuntaskan tugas teratas untuk mempertahankan ritme belajarmu!' : 'Semua tugas saat ini tuntas. Waktu yang tepat untuk istirahat atau cicil materi baru!'}`;
+        replyText = `**Ringkasan Beban Belajar Siswa:**\n\n• Sisa Tugas Aktif: **${pendingCount} tugas**\n• Streak Aktif: **${streak} Hari**\n• Total Waktu Fokus: **${hours} Jam**\n\n${pendingCount > 0 ? 'Fokus tuntaskan tugas teratas untuk mempertahankan ritme belajarmu!' : 'Semua tugas saat ini tuntas. Waktu yang tepat untuk istirahat atau cicil materi baru!'}`;
       } else if (lower.includes('fokus') || lower.includes('tips') || lower.includes('distraksi') || lower.includes('timer')) {
-        replyText = '💡 **Tips Zen Focus Mode ala Stoodify:**\n\n1. Jauhkan ponsel dari jangkauan pandangan mata.\n2. Siapkan hanya 1 botol air minum dan catatan tugas.\n3. Nyalakan timer fokus 45 menit lalu istirahat 10 menit (Pomodoro Adaptif).\n\nMau mulai sesi fokus sekarang?';
+        replyText = '**Tips Zen Focus Mode ala Stoodify:**\n\n1. Jauhkan ponsel dari jangkauan pandangan mata.\n2. Siapkan hanya 1 botol air minum dan catatan tugas.\n3. Nyalakan timer fokus 45 menit lalu istirahat 10 menit (Pomodoro Adaptif).\n\nMau mulai sesi fokus sekarang?';
         actionType = 'focus_timer';
-        actionLabel = '⏱️ Buka Zen Focus Timer';
+        actionLabel = 'Buka Zen Focus Timer';
       } else {
         const topTaskTitle = tasks.find(t => t.status !== 'completed')?.title;
         replyText = topTaskTitle

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   User, 
   Settings, 
@@ -9,10 +9,13 @@ import {
   ChevronRight, 
   Flame, 
   CheckCircle,
-  Crown
+  Crown,
+  Camera,
+  Loader2
 } from 'lucide-react';
 import { UserProfile } from '../../types';
 import { ProfileSkeleton } from '../layout/SkeletonLoaders';
+import { authService } from '../../services/authService';
 
 interface ProfileViewProps {
   user: UserProfile;
@@ -22,6 +25,7 @@ interface ProfileViewProps {
   onOpenHelp: () => void;
   onOpenManageSubjects: () => void;
   onLogout: () => void;
+  onAvatarUpdated?: (url: string) => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -32,10 +36,38 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenHelp,
   onOpenManageSubjects,
   onLogout,
+  onAvatarUpdated,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const newUrl = await authService.uploadAvatar(file);
+      if (onAvatarUpdated) {
+        onAvatarUpdated(newUrl);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Gagal mengunggah foto profil');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (isLoading) {
     return <ProfileSkeleton />;
   }
+
+  const initials = (user.name || 'Siswa')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join('');
 
   return (
     <div className="space-y-4 px-4 pt-3 pb-8">
@@ -51,17 +83,36 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       {/* 2. STUDENT CARD */}
       <div className="bg-white rounded-[28px] p-5 shadow-[0_8px_30px_rgba(20,40,90,0.06)] border border-white">
         <div className="flex items-center gap-3.5">
-          <div className="relative">
+          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleAvatarFile} 
+              accept="image/png,image/jpeg,image/webp" 
+              className="hidden" 
+            />
             <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-amber-300 p-0.5 shadow-md">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" 
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                />
+                {user.avatarUrl ? (
+                  <img 
+                    src={user.avatarUrl.startsWith('http') ? user.avatarUrl : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${user.avatarUrl}`} 
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-bold text-[#0062FF]">{initials}</span>
+                )}
               </div>
             </div>
-            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
+            {isUploading ? (
+              <span className="absolute inset-0 bg-slate-900/40 rounded-full flex items-center justify-center text-white">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </span>
+            ) : (
+              <span className="absolute bottom-0 right-0 w-4 h-4 bg-[#0062FF] border-2 border-white rounded-full flex items-center justify-center text-white shadow-xs">
+                <Camera className="w-2.5 h-2.5" />
+              </span>
+            )}
           </div>
 
           <div className="flex-1 min-w-0">

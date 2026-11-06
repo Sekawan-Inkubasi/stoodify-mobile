@@ -126,6 +126,7 @@ export function App() {
             ...prev,
             name: me.name,
             email: me.email,
+            avatarUrl: me.avatarUrl || prev.avatarUrl,
             grade: me.grade || prev.grade,
             school: me.school || prev.school,
           }));
@@ -186,7 +187,7 @@ export function App() {
         notes: newTask.notes,
       });
       setTasks(prev => [created, ...prev]);
-      showAlert(`Tugas "${created.title}" berhasil ditambahkan ke database backend! ✨`, 'Tugas Berhasil Ditambahkan', 'success');
+      showAlert(`Tugas "${created.title}" berhasil ditambahkan ke database backend!`, 'Tugas Berhasil Ditambahkan', 'success');
 
       statisticsService.getOverview().then(stats => {
         setUser(prev => ({
@@ -272,7 +273,7 @@ export function App() {
     try {
       const created = await subjectService.createSubject(newSub);
       setSubjects(prev => [...prev, created]);
-      showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database! ✨`, 'Mata Pelajaran Ditambahkan', 'success');
+      showAlert(`Mata pelajaran "${created.name}" berhasil ditambahkan ke database!`, 'Mata Pelajaran Ditambahkan', 'success');
       refreshBackendData();
     } catch (err: any) {
       showAlert(err.message || 'Gagal menambahkan mata pelajaran ke server.', 'Gagal Tambah Mapel', 'warning');
@@ -307,7 +308,7 @@ export function App() {
     try {
       const created = await scheduleService.createSchedule(newItem);
       setSchedule(prev => [...prev, created]);
-      showAlert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal database! 📅`, 'Jadwal Ditambahkan', 'success');
+      showAlert(`Jam pelajaran "${created.subjectName}" berhasil dimasukkan ke jadwal database!`, 'Jadwal Ditambahkan', 'success');
     } catch (err: any) {
       if (err.status === 409) {
         showAlert('Terdeteksi konflik jadwal! Jam pelajaran bentrok dengan jadwal lain pada hari yang sama.', 'Konflik Jadwal Pelajaran', 'warning');
@@ -459,6 +460,10 @@ export function App() {
                 onOpenHelp={() => showAlert('Hubungi tim kami via kontak support sekolah atau baca panduan asisten AI Stoodify untuk tips belajar efektif.', 'Pusat Bantuan Stoodify', 'info')}
                 onOpenManageSubjects={() => setIsManageSubjectsOpen(true)}
                 onLogout={handleLogout}
+                onAvatarUpdated={(newUrl) => {
+                  setUser(prev => ({ ...prev, avatarUrl: newUrl }));
+                  showAlert('Foto profil berhasil diperbarui!', 'Foto Profil', 'success');
+                }}
               />
             )}
           </>

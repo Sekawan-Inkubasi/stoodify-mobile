@@ -89,6 +89,7 @@ export interface UserProfile {
   grade: string;
   school: string;
   email: string;
+  avatarUrl?: string;
   streakDays: number;
   totalStudyHours: number;
   completedTasksThisWeek: number;

@@ -19,7 +19,7 @@ export const ProPaywallModal: React.FC<ProPaywallModalProps> = ({
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'semester'>('semester');
 
   const handleUpgrade = () => {
-    showAlert('Akunmu telah berhasil di-upgrade ke Stoodify Siswa Pro 🎉\nSeluruh batasan kuota AI telah dibuka.', 'Upgrade Berhasil', 'success');
+    showAlert('Akunmu telah berhasil di-upgrade ke Stoodify Siswa Pro!\nSeluruh batasan kuota AI telah dibuka.', 'Upgrade Berhasil', 'success');
     onUpgradeSuccess();
     onClose();
   };
@@ -41,7 +41,7 @@ export const ProPaywallModal: React.FC<ProPaywallModalProps> = ({
             <Crown className="w-8 h-8 fill-current" />
           </div>
 
-          <h2 className="text-xl font-bold tracking-tight">Stoodify Siswa Pro 💎</h2>
+          <h2 className="text-xl font-bold tracking-tight">Stoodify Siswa Pro</h2>
           <p className="text-blue-100 text-xs mt-1 max-w-xs mx-auto font-normal">
             Buka seluruh potensi asisten belajarmu tanpa batasan kuota prompt AI
           </p>

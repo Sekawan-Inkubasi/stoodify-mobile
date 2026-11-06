@@ -6,6 +6,7 @@ export interface UserAuthData {
   email: string;
   grade?: string;
   school?: string;
+  avatarUrl?: string;
   streakDays?: number;
   totalStudyHours?: number;
   completedTasksThisWeek?: number;
@@ -58,6 +59,9 @@ export const authService = {
         email: data.email,
         password: data.password,
         confirm_password: data.confirmPassword || data.password,
+        school: data.school || "SMA Negeri 1 Jakarta",
+        grade: 11,
+        major: "MIPA",
       }),
     });
 
@@ -105,6 +109,7 @@ export const authService = {
         email: res.email || "",
         grade: res.grade || "SMA - Fase F",
         school: res.school || "Stoodify",
+        avatarUrl: res.avatar_url || "",
         streakDays: 0,
         totalStudyHours: 0,
         completedTasksThisWeek: 0,
@@ -113,6 +118,27 @@ export const authService = {
     } catch {
       return null;
     }
+  },
+
+  async uploadAvatar(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const token = tokenStorage.getAccessToken();
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "/api";
+    const res = await fetch(`${baseUrl}/users/avatar`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Gagal mengunggah foto profil");
+    }
+    return data.data?.avatar_url || "";
   },
 
   logout(): void {

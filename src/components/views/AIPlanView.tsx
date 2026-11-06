@@ -141,37 +141,41 @@ export const AIPlanView: React.FC<AIPlanViewProps> = ({
           </div>
         </div>
 
-        <p className="text-[11px] text-slate-500 bg-blue-50/60 p-2.5 rounded-xl border border-blue-100/60 leading-relaxed font-normal">
-          💡 <strong className="font-semibold text-slate-700">Rekomendasi Algoritma:</strong> Tugas diurutkan secara cerdas berdasarkan urgensi tenggat dan tingkat kesulitan materi agar terdistribusi merata tanpa membebani siswa.
+        <p className="text-[11px] text-slate-500 bg-blue-50/60 p-2.5 rounded-xl border border-blue-100/60 leading-relaxed font-normal flex items-start gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-[#0062FF] shrink-0 mt-0.5" />
+          <span><strong className="font-semibold text-slate-700">Rekomendasi Algoritma:</strong> Tugas diurutkan secara cerdas berdasarkan urgensi tenggat dan tingkat kesulitan materi agar terdistribusi merata tanpa membebani siswa.</span>
         </p>
       </div>
 
       {/* 4. SESSIONS FILTER PILLS */}
-      <div className="flex items-center justify-between px-1">
-        <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+        <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide truncate">
           Urutan Prioritas Belajar ({filteredSessions.length})
         </h2>
 
-        <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-slate-200/80 shadow-xs">
+        <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-slate-200/80 shadow-xs self-start sm:self-auto shrink-0">
           <button
+            type="button"
             onClick={() => setFilterMode('all')}
-            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
               filterMode === 'all' ? 'bg-[#0062FF] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Semua
           </button>
           <button
+            type="button"
             onClick={() => setFilterMode('today')}
-            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
               filterMode === 'today' ? 'bg-[#0062FF] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Hari Ini
           </button>
           <button
+            type="button"
             onClick={() => setFilterMode('upcoming')}
-            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
               filterMode === 'upcoming' ? 'bg-[#0062FF] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >

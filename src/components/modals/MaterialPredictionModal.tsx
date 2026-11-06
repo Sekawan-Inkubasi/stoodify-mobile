@@ -8,7 +8,8 @@ import {
   Lightbulb, 
   Info,
   Plus,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import { MaterialPrediction, Subject } from '../../types';
 import { predictionService } from '../../services/predictionService';
@@ -176,9 +177,10 @@ export const MaterialPredictionModal: React.FC<MaterialPredictionModalProps> = (
                     {pred.prerequisites.map((req, idx) => (
                       <span
                         key={idx}
-                        className="text-[10px] font-medium bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full"
+                        className="text-[10px] font-medium bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"
                       >
-                        ✓ {req}
+                        <Check className="w-2.5 h-2.5 text-emerald-600" />
+                        <span>{req}</span>
                       </span>
                     ))}
                   </div>

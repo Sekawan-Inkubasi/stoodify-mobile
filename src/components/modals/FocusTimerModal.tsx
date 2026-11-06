@@ -50,7 +50,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
       }, 1000);
     } else if (secondsRemaining === 0) {
       setIsActive(false);
-      showAlert('Selamat! Sesi belajar berhasil tuntas! 🎉', 'Sesi Tuntas', 'success');
+      showAlert('Selamat! Sesi belajar berhasil tuntas!', 'Sesi Tuntas', 'success');
       if (onSessionComplete) onSessionComplete(task?.id, Math.round(totalSeconds / 60));
     }
     return () => clearInterval(interval);
@@ -202,7 +202,7 @@ export const FocusTimerModal: React.FC<FocusTimerModalProps> = ({
 
         {/* Motivational note */}
         <p className="text-[11px] text-slate-400 font-medium italic mt-2">
-          "Fokus satu tugas, satu waktu. Jauhkan distraksi gadget selama 45 menit! 🎧"
+          "Fokus satu tugas, satu waktu. Jauhkan distraksi gadget selama 45 menit!"
         </p>
 
         {/* Complete Session Button */}

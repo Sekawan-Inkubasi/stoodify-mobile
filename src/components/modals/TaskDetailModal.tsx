@@ -62,12 +62,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <span className="text-[10px] font-medium bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full">
               {task.taskType}
             </span>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
               isCompleted 
                 ? 'bg-emerald-100 text-emerald-700' 
                 : 'bg-blue-100 text-blue-700'
             }`}>
-              {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
+              {isCompleted ? (
+                <>
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Selesai</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="w-3 h-3" />
+                  <span>Terjadwal</span>
+                </>
+              )}
             </span>
           </div>
 

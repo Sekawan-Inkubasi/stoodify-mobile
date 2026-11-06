@@ -7,6 +7,8 @@ import {
   Clock, 
   ChevronRight,
   Sparkles,
+  Zap,
+  Flame,
   SlidersHorizontal,
   Layers
 } from 'lucide-react';
@@ -104,26 +106,30 @@ export const TasksView: React.FC<TasksViewProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
         {[
           { id: 'all', label: 'Semua', count: activeTasksCount },
-          { id: 'urgent', label: '⚡ Prioritas', count: urgentTasksCount },
-          { id: 'completed', label: '✓ Tuntas', count: completedTasksCount },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveStatusTab(tab.id as any)}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeStatusTab === tab.id
-                ? 'bg-[#0062FF] text-white shadow-sm shadow-blue-500/20'
-                : 'bg-white/70 hover:bg-white text-slate-600 border border-white/60'
-            }`}
-          >
-            <span>{tab.label}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-              activeStatusTab === tab.id ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-500'
-            }`}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
+          { id: 'urgent', label: 'Prioritas', count: urgentTasksCount, icon: Zap },
+          { id: 'completed', label: 'Tuntas', count: completedTasksCount, icon: CheckCircle2 },
+        ].map(tab => {
+          const IconComp = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveStatusTab(tab.id as any)}
+              className={`text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                activeStatusTab === tab.id
+                  ? 'bg-[#0062FF] text-white shadow-sm shadow-blue-500/20'
+                  : 'bg-white/70 hover:bg-white text-slate-600 border border-white/60'
+              }`}
+            >
+              {IconComp && <IconComp className="w-3.5 h-3.5 shrink-0" />}
+              <span>{tab.label}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                activeStatusTab === tab.id ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-500'
+              }`}>
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* 4. SUBJECT CHIPS */}
@@ -217,29 +223,41 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     {/* Tags row */}
                     <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                       <span
-                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full text-white"
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full text-white max-w-[120px] truncate shrink-0"
                         style={{ backgroundColor: task.subjectColor }}
                       >
                         {task.subject}
                       </span>
 
-                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
                         {task.taskType}
                       </span>
 
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 ${
                         task.priorityLevel === 'critical'
                           ? 'bg-rose-50 text-rose-700'
                           : task.priorityLevel === 'high'
                           ? 'bg-amber-50 text-amber-700'
                           : 'bg-slate-100 text-slate-600'
                       }`}>
-                        {task.priorityLevel === 'critical' ? '⚡ Sangat Tinggi' : task.priorityLevel === 'high' ? '🔥 Tinggi' : 'Sedang'}
+                        {task.priorityLevel === 'critical' ? (
+                          <>
+                            <Zap className="w-3 h-3 text-rose-600" />
+                            <span>Sangat Tinggi</span>
+                          </>
+                        ) : task.priorityLevel === 'high' ? (
+                          <>
+                            <Flame className="w-3 h-3 text-amber-600" />
+                            <span>Tinggi</span>
+                          </>
+                        ) : (
+                          <span>Sedang</span>
+                        )}
                       </span>
                     </div>
 
                     {/* Task Title */}
-                    <h3 className={`text-xs font-bold text-slate-900 leading-snug ${isCompleted ? 'line-through text-slate-400' : ''}`}>
+                    <h3 className={`text-xs font-bold text-slate-900 leading-snug line-clamp-2 ${isCompleted ? 'line-through text-slate-400' : ''}`}>
                       {task.title}
                     </h3>
 
@@ -252,17 +270,27 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     )}
 
                     {/* Schedule allocation and deadline */}
-                    <div className="mt-2.5 pt-2 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-500">
-                      <div className="flex items-center gap-1 font-medium text-slate-600">
-                        <Clock className="w-3 h-3 text-slate-400" />
-                        <span>{task.deadlineFormatted}</span>
+                    <div className="mt-2.5 pt-2 border-t border-slate-50 flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                      <div className="flex items-center gap-1 font-medium text-slate-600 min-w-0 truncate">
+                        <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">{task.deadlineFormatted}</span>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <span className={`font-bold px-2 py-0.5 rounded-md text-[10px] ${
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className={`font-bold px-2 py-0.5 rounded-md text-[10px] flex items-center gap-1 ${
                           isCompleted ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50'
                         }`}>
-                          {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
+                          {isCompleted ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Selesai</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>Terjadwal</span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>

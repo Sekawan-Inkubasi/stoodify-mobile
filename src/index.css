@@ -84,33 +84,33 @@
 
 /* iOS / High-End Native Fluid Spring & Easing Curves */
 .drawer-panel-smooth {
-  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 420ms ease;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
 .backdrop-smooth {
-  transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 360ms ease;
-  will-change: opacity, backdrop-filter;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
 }
 
 .tab-smooth {
-  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 280ms ease, box-shadow 300ms ease;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 250ms ease;
   will-change: transform, opacity;
 }
 
 @keyframes slide-up-smooth {
   0% {
     opacity: 0;
-    transform: translateY(22px) scale(0.975);
+    transform: translateY(18px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .modal-enter-smooth {
-  animation: slide-up-smooth 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slide-up-smooth 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
 }
 

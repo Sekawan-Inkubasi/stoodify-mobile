@@ -78,11 +78,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="relative cursor-pointer" onClick={() => onNavigateTab('profile')}>
             <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-amber-300 p-[2px] shadow-sm">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" 
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                />
+                {user.avatarUrl ? (
+                  <img 
+                    src={user.avatarUrl.startsWith('http') ? user.avatarUrl : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${user.avatarUrl}`} 
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-bold text-[#0062FF]">
+                    {(user.name || 'Siswa').split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')}
+                  </span>
+                )}
               </div>
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -99,8 +105,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <p className="text-[11px] font-normal text-slate-500 flex items-center gap-1">
               <span>{user.school ? user.school.split(' ')[0] : 'Stoodify'}</span>
-              <span className="text-[10px] font-medium text-amber-700 bg-amber-100/90 px-1.5 py-0.2 rounded-full">
-                🔥 {user.streakDays || 0}d Streak
+              <span className="text-[10px] font-medium text-amber-700 bg-amber-100/90 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
+                <Flame className="w-3 h-3 text-amber-600 fill-amber-500" />
+                <span>{user.streakDays || 0}d Streak</span>
               </span>
             </p>
           </div>
@@ -367,12 +374,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       ) : pendingTasks.length > 0 ? (
         <div className="bg-white rounded-[28px] p-5 shadow-[0_12px_32px_rgba(24,54,120,0.07)] border border-white relative overflow-hidden transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5 bg-blue-50 text-[#0062FF] px-3 py-1 rounded-full text-[11px] font-semibold">
-              <Sparkles className="w-3.5 h-3.5 stroke-[2px]" />
-              <span>Prioritas Utama &bull; {pendingTasks[0].deadlineFormatted}</span>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-1.5 bg-blue-50 text-[#0062FF] px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold min-w-0 truncate">
+              <Sparkles className="w-3.5 h-3.5 stroke-[2px] shrink-0" />
+              <span className="truncate">Prioritas Utama &bull; {pendingTasks[0].deadlineFormatted}</span>
             </div>
-            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
               {pendingTasks[0].taskType}
             </span>
           </div>
@@ -564,8 +571,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         {task.subject}
                       </span>
                       
-                      <span className="text-[10px] font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
-                        {task.priorityLevel === 'critical' ? '⚡ Mendesak' : '🔥 Tinggi'}
+                      <span className="text-[10px] font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                        {task.priorityLevel === 'critical' ? (
+                          <>
+                            <Zap className="w-3 h-3 text-rose-600" />
+                            <span>Mendesak</span>
+                          </>
+                        ) : (
+                          <>
+                            <Flame className="w-3 h-3 text-amber-600 fill-amber-500" />
+                            <span>Tinggi</span>
+                          </>
+                        )}
                       </span>
                     </div>
 
@@ -580,10 +597,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <span className={`font-bold px-2 py-0.5 rounded-md ${
+                        <span className={`font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1 ${
                           isCompleted ? 'text-emerald-700 bg-emerald-50' : 'text-blue-700 bg-blue-50'
                         }`}>
-                          {isCompleted ? '✓ Selesai' : '⏱️ Terjadwal'}
+                          {isCompleted ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Selesai</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3" />
+                              <span>Terjadwal</span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
